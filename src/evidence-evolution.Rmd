@@ -1,0 +1,127 @@
+---
+title: "Evidence Synthesis"
+author: "Anonymous"
+date: '2024-09-25'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+
+library(ggdag) # visualization and analysis of DAGs
+```
+
+This notebook demonstrates the application of the evidence evolution framework by applying it to existing evidence from the domain of requirements quality research.
+In this application, we put the evidence from three primary studies investigating the same phenomenon into relation with each other.
+
+## Step 1: Original Study
+
+The original study by Femmer et al.[^1] studied the impact that the use of passive voice has on the domain modeling activity.
+They formulate the following research question:
+
+> Is the use of passive sentences in requirements harmfulfor domain modelling?
+
+### Hypothesis h1
+
+The authors imply a simple hypothesis $h_1:=pv \rightarrow A^-$ (i.e., the use of passive voice $pv$ impacts the number of missing associations $A^-$).
+
+```{r hypothesis-h1-def}
+h1 <- associations.missing ~ passive
+```
+
+
+The original stud[^1] also investigates the impact on the number of missing actors and domain objects, but these are out of scope for this synthesis.
+The causal assumptions can be visualized in the following directed, acyclic graph (DAG).
+
+```{r hypothesis-h1-dag}
+dag_e1 <- dagify(
+  mact ~ pv,
+  mobj ~ pv,
+  masc ~ pv,
+  
+  exposure = "pv",
+  outcome = "masc",
+  labels = c(pv="passive.voice", mact="missing.actors", mobj="missing.objects", masc="missing.associations"),
+  coords = list(x=c(pv=1, mact=2, mobj=2, masc=2),
+                y=c(pv=1, mact=1.5, mobj=1, masc=0.5))
+)
+
+ggdag_status(dag_e1, 
+             use_labels = "label", 
+             text = FALSE) +
+  guides(fill = "none", color = "none") + 
+  theme_dag()
+```
+
+### Data d1
+
+To investigate this hypothesis, the authors perform a parallel-design controlled experiment with 15 university students as participants.
+The participants are randomly divided into two groups and receive seven single-sentence requirements specifications, either written in active or passive voice.
+Their task was to generate a domain model from each of the requirements specifications.
+The authors then counted the number of missing actors, domain objects, and associations (collectively called: _elements_ of the domain model) in the resulting domain model.
+
+```{r data-d1-loading}
+d1 <- read.csv(file="../data/femmer-2014.csv")
+```
+
+The following figure shows a simple visualization of the distribution of the number of missing domain elements (actors, domain objects, and associations) for the `active` and `passive` treatment of the requirements sentences.
+
+```{r data-d1-visualization}
+d1 %>% 
+  select(passive, actors.missing, objects.missing, associations.missing) %>% 
+  pivot_longer(
+    cols = c(actors.missing, objects.missing, associations.missing),
+    names_to = "dependent.variable",
+    values_to = "count"
+  ) %>% 
+  ggplot(aes(y=dependent.variable, x=count, color=passive)) +
+    geom_boxplot()
+```
+
+### Method m1
+
+Finally, the authors performed a null-hypothesis significance test (NHST) to see if there is a statistically significant difference in the number of missing elements between the active or passive group.
+Of particular interest to this synthesis is the difference in the number of missing _associations_.
+The authors use the Mann-Whitney U test (i.e., a Wilcoxon rank-sum test) with a 95% confidence interval since the data is not normally distributed.
+
+```{r method-m1-original}
+wilcox.test(
+  x = filter(d1, passive==1)[["associations.missing"]],
+  y = filter(d1, passive==0)[["associations.missing"]],
+  conf.int = TRUE,
+  conf.level = 0.95,
+  paired = FALSE
+)
+```
+
+Since any statistical test is equivalent to a linear model, we can instead test the hypothesis directly using `stats::lm`.
+We do not need to transform the variable `associations.missing` to ranks since the values are already equivalent to ranks.
+This way, we do not lose any information through the rank transformation and the resulting confidence interval remains interpretable.
+
+```{r method-m1-transformed}
+e1.associations <- lm(
+  formula = h1, 
+  data = d1)
+summary(e1.associations)
+```
+
+The p-value from the linear model is very similar to the p-value of the Wilcoxon rank sum test.
+
+### Conclusion
+
+Finally, we can calculate the actual confidence interval of the independent variable `passive` on the outcome variable
+
+```{r e1-ci}
+confint(
+  e1.associations, 
+  parm="passiveTRUE", 
+  level=0.95)
+```
+
+This confidence interval $ci_{e_1}=[0.23, 0.84]$ represents a statistically significant impact of the independent variable _passive voice_ on the dependent variable _number of missing associations_.
+
+[^1]: Femmer, H., Kučera, J., & Vetrò, A. (2014, September). On the impact of passive voice requirements on domain modelling. In Proceedings of the 8th ACM/IEEE international symposium on empirical software engineering and measurement (pp. 1-4). https://doi.org/10.1145/2652524.2652554
+[^2]: Frattini, J., Fucci, D., Torkar, R., & Mendez, D. (2024, April). A second look at the impact of passive voice requirements on domain modeling: Bayesian reanalysis of an experiment. In Proceedings of the 1st IEEE/ACM International Workshop on Methodological Issues with Empirical Studies in Software Engineering (pp. 27-33). https://doi.org/10.1145/3643664.3648211
+[^3]: Frattini, J., Fucci, D., Torkar, R., Montgomery, L., Unterkalmsteiner, M., Fischbach, J., & Mendez, D. (2024). Applying Bayesian Data Analysis for Causal Inference about Requirements Quality: A Replicated Experiment. arXiv preprint: https://arxiv.org/abs/2401.01154

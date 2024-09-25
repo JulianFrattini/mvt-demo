@@ -1,0 +1,106 @@
+PID,RID,Age,Program,REQuizPerformance,ExpProgAca,ExpProgInd,ExpSEAca,ExpSEInd,ExpREAca,ExpREInd,passive,actors.expected,actors.found,actors.missing,associations.expected,associations.found,associations.missing,objects.expected,objects.found,objects.missing
+P1,R1,25-30,Master,9,6 to 12 months,more than 12 months,more than 12 months,up to 6 months,up to 6 months,no experience,TRUE,1,1,0,2,0,2,3,1,2
+P1,R2,25-30,Master,9,6 to 12 months,more than 12 months,more than 12 months,up to 6 months,up to 6 months,no experience,TRUE,1,1,0,2,0,2,3,2,1
+P1,R3,25-30,Master,9,6 to 12 months,more than 12 months,more than 12 months,up to 6 months,up to 6 months,no experience,TRUE,2,2,0,2,0,2,2,1,1
+P1,R4,25-30,Master,9,6 to 12 months,more than 12 months,more than 12 months,up to 6 months,up to 6 months,no experience,TRUE,0,0,0,1,1,0,2,2,0
+P1,R5,25-30,Master,9,6 to 12 months,more than 12 months,more than 12 months,up to 6 months,up to 6 months,no experience,TRUE,0,0,0,2,0,2,3,2,1
+P1,R6,25-30,Master,9,6 to 12 months,more than 12 months,more than 12 months,up to 6 months,up to 6 months,no experience,TRUE,0,0,0,3,2,1,4,4,0
+P1,R7,25-30,Master,9,6 to 12 months,more than 12 months,more than 12 months,up to 6 months,up to 6 months,no experience,TRUE,1,1,0,2,2,0,3,2,1
+P2,R1,25-30,Master,7,up to 6 months,no experience,6 to 12 months,no experience,up to 6 months,no experience,TRUE,1,1,0,2,2,0,3,3,0
+P2,R2,25-30,Master,7,up to 6 months,no experience,6 to 12 months,no experience,up to 6 months,no experience,TRUE,1,1,0,2,2,0,3,3,0
+P2,R3,25-30,Master,7,up to 6 months,no experience,6 to 12 months,no experience,up to 6 months,no experience,TRUE,2,2,0,2,2,0,2,2,0
+P2,R4,25-30,Master,7,up to 6 months,no experience,6 to 12 months,no experience,up to 6 months,no experience,TRUE,0,0,0,1,1,0,2,2,0
+P2,R5,25-30,Master,7,up to 6 months,no experience,6 to 12 months,no experience,up to 6 months,no experience,TRUE,0,0,0,2,2,0,3,3,0
+P2,R6,25-30,Master,7,up to 6 months,no experience,6 to 12 months,no experience,up to 6 months,no experience,TRUE,0,0,0,3,3,0,4,4,0
+P2,R7,25-30,Master,7,up to 6 months,no experience,6 to 12 months,no experience,up to 6 months,no experience,TRUE,1,0,1,2,1,1,3,3,0
+P4,R1,25-30,Master,8,more than 12 months,more than 12 months,more than 12 months,more than 12 months,6 to 12 months,6 to 12 months,TRUE,1,1,0,2,1,1,3,3,0
+P4,R2,25-30,Master,8,more than 12 months,more than 12 months,more than 12 months,more than 12 months,6 to 12 months,6 to 12 months,TRUE,1,1,0,2,1,1,3,3,0
+P4,R3,25-30,Master,8,more than 12 months,more than 12 months,more than 12 months,more than 12 months,6 to 12 months,6 to 12 months,TRUE,2,1,1,2,0,2,2,2,0
+P4,R4,25-30,Master,8,more than 12 months,more than 12 months,more than 12 months,more than 12 months,6 to 12 months,6 to 12 months,TRUE,0,0,0,1,1,0,2,2,0
+P4,R5,25-30,Master,8,more than 12 months,more than 12 months,more than 12 months,more than 12 months,6 to 12 months,6 to 12 months,TRUE,0,0,0,2,1,1,3,2,1
+P4,R6,25-30,Master,8,more than 12 months,more than 12 months,more than 12 months,more than 12 months,6 to 12 months,6 to 12 months,TRUE,0,0,0,3,2,1,4,4,0
+P4,R7,25-30,Master,8,more than 12 months,more than 12 months,more than 12 months,more than 12 months,6 to 12 months,6 to 12 months,TRUE,1,0,1,2,0,2,3,3,0
+P5,R1,25-30,Unknown,10,more than 12 months,no experience,more than 12 months,no experience,6 to 12 months,no experience,TRUE,1,1,0,2,0,2,3,1,2
+P5,R2,25-30,Unknown,10,more than 12 months,no experience,more than 12 months,no experience,6 to 12 months,no experience,TRUE,1,1,0,2,0,2,3,2,1
+P5,R3,25-30,Unknown,10,more than 12 months,no experience,more than 12 months,no experience,6 to 12 months,no experience,TRUE,2,2,0,2,0,2,2,2,0
+P5,R4,25-30,Unknown,10,more than 12 months,no experience,more than 12 months,no experience,6 to 12 months,no experience,TRUE,0,0,0,1,0,1,2,2,0
+P5,R5,25-30,Unknown,10,more than 12 months,no experience,more than 12 months,no experience,6 to 12 months,no experience,TRUE,0,0,0,2,0,2,3,2,1
+P5,R6,25-30,Unknown,10,more than 12 months,no experience,more than 12 months,no experience,6 to 12 months,no experience,TRUE,0,0,0,3,2,1,4,4,0
+P5,R7,25-30,Unknown,10,more than 12 months,no experience,more than 12 months,no experience,6 to 12 months,no experience,TRUE,1,1,0,2,1,1,3,3,0
+P6,R1,31-40,Doctorate,8,6 to 12 months,more than 12 months,more than 12 months,more than 12 months,more than 12 months,more than 12 months,TRUE,1,1,0,2,2,0,3,3,0
+P6,R2,31-40,Doctorate,8,6 to 12 months,more than 12 months,more than 12 months,more than 12 months,more than 12 months,more than 12 months,TRUE,1,1,0,2,2,0,3,3,0
+P6,R3,31-40,Doctorate,8,6 to 12 months,more than 12 months,more than 12 months,more than 12 months,more than 12 months,more than 12 months,TRUE,2,2,0,2,0,2,2,2,0
+P6,R4,31-40,Doctorate,8,6 to 12 months,more than 12 months,more than 12 months,more than 12 months,more than 12 months,more than 12 months,TRUE,0,0,0,1,1,0,2,2,0
+P6,R5,31-40,Doctorate,8,6 to 12 months,more than 12 months,more than 12 months,more than 12 months,more than 12 months,more than 12 months,TRUE,0,0,0,2,1,1,3,2,1
+P6,R6,31-40,Doctorate,8,6 to 12 months,more than 12 months,more than 12 months,more than 12 months,more than 12 months,more than 12 months,TRUE,0,0,0,3,0,3,4,4,0
+P6,R7,31-40,Doctorate,8,6 to 12 months,more than 12 months,more than 12 months,more than 12 months,more than 12 months,more than 12 months,TRUE,1,0,1,2,1,1,3,3,0
+P7,R1,25-30,Master,8,more than 12 months,no experience,more than 12 months,more than 12 months,6 to 12 months,no experience,TRUE,1,1,0,2,1,1,3,3,0
+P7,R2,25-30,Master,8,more than 12 months,no experience,more than 12 months,more than 12 months,6 to 12 months,no experience,TRUE,1,1,0,2,1,1,3,3,0
+P7,R3,25-30,Master,8,more than 12 months,no experience,more than 12 months,more than 12 months,6 to 12 months,no experience,TRUE,2,2,0,2,0,2,2,2,0
+P7,R4,25-30,Master,8,more than 12 months,no experience,more than 12 months,more than 12 months,6 to 12 months,no experience,TRUE,0,0,0,1,0,1,2,1,1
+P7,R5,25-30,Master,8,more than 12 months,no experience,more than 12 months,more than 12 months,6 to 12 months,no experience,TRUE,0,0,0,2,1,1,3,2,1
+P7,R6,25-30,Master,8,more than 12 months,no experience,more than 12 months,more than 12 months,6 to 12 months,no experience,TRUE,0,0,0,3,0,3,4,4,0
+P7,R7,25-30,Master,8,more than 12 months,no experience,more than 12 months,more than 12 months,6 to 12 months,no experience,TRUE,1,0,1,2,0,2,3,3,0
+P8,R1,31-40,Doctorate,8,no experience,more than 12 months,no experience,more than 12 months,no experience,more than 12 months,TRUE,1,1,0,2,1,1,3,3,0
+P8,R2,31-40,Doctorate,8,no experience,more than 12 months,no experience,more than 12 months,no experience,more than 12 months,TRUE,1,1,0,2,1,1,3,3,0
+P8,R3,31-40,Doctorate,8,no experience,more than 12 months,no experience,more than 12 months,no experience,more than 12 months,TRUE,2,2,0,2,0,2,2,2,0
+P8,R4,31-40,Doctorate,8,no experience,more than 12 months,no experience,more than 12 months,no experience,more than 12 months,TRUE,0,0,0,1,0,1,2,2,0
+P8,R5,31-40,Doctorate,8,no experience,more than 12 months,no experience,more than 12 months,no experience,more than 12 months,TRUE,0,0,0,2,1,1,3,2,1
+P8,R6,31-40,Doctorate,8,no experience,more than 12 months,no experience,more than 12 months,no experience,more than 12 months,TRUE,0,0,0,3,2,1,4,4,0
+P8,R7,31-40,Doctorate,8,no experience,more than 12 months,no experience,more than 12 months,no experience,more than 12 months,TRUE,1,0,1,2,1,1,3,3,0
+P9,R1,25-30,Master,10,more than 12 months,more than 12 months,more than 12 months,more than 12 months,no experience,no experience,TRUE,1,1,0,2,2,0,3,3,0
+P9,R2,25-30,Master,10,more than 12 months,more than 12 months,more than 12 months,more than 12 months,no experience,no experience,TRUE,1,1,0,2,2,0,3,3,0
+P9,R3,25-30,Master,10,more than 12 months,more than 12 months,more than 12 months,more than 12 months,no experience,no experience,TRUE,2,2,0,2,0,2,2,2,0
+P9,R4,25-30,Master,10,more than 12 months,more than 12 months,more than 12 months,more than 12 months,no experience,no experience,TRUE,0,0,0,1,0,1,2,2,0
+P9,R5,25-30,Master,10,more than 12 months,more than 12 months,more than 12 months,more than 12 months,no experience,no experience,TRUE,0,0,0,2,1,1,3,2,1
+P9,R6,25-30,Master,10,more than 12 months,more than 12 months,more than 12 months,more than 12 months,no experience,no experience,TRUE,0,0,0,3,0,3,4,4,0
+P9,R7,25-30,Master,10,more than 12 months,more than 12 months,more than 12 months,more than 12 months,no experience,no experience,TRUE,1,0,1,2,1,1,3,3,0
+A1,R1,19-24,Master,10,more than 12 months,more than 12 months,6 to 12 months,no experience,up to 6 months,up to 6 months,FALSE,1,1,0,2,2,0,3,3,0
+A1,R2,19-24,Master,10,more than 12 months,more than 12 months,6 to 12 months,no experience,up to 6 months,up to 6 months,FALSE,1,1,0,2,2,0,3,3,0
+A1,R3,19-24,Master,10,more than 12 months,more than 12 months,6 to 12 months,no experience,up to 6 months,up to 6 months,FALSE,2,2,0,2,0,2,2,2,0
+A1,R4,19-24,Master,10,more than 12 months,more than 12 months,6 to 12 months,no experience,up to 6 months,up to 6 months,FALSE,0,0,0,1,1,0,2,2,0
+A1,R5,19-24,Master,10,more than 12 months,more than 12 months,6 to 12 months,no experience,up to 6 months,up to 6 months,FALSE,0,0,0,2,1,1,3,2,1
+A1,R6,19-24,Master,10,more than 12 months,more than 12 months,6 to 12 months,no experience,up to 6 months,up to 6 months,FALSE,0,0,0,3,3,0,4,4,0
+A1,R7,19-24,Master,10,more than 12 months,more than 12 months,6 to 12 months,no experience,up to 6 months,up to 6 months,FALSE,1,1,0,2,2,0,3,3,0
+A2,R1,19-24,Master,8,more than 12 months,no experience,more than 12 months,no experience,6 to 12 months,no experience,FALSE,1,1,0,2,2,0,3,3,0
+A2,R2,19-24,Master,8,more than 12 months,no experience,more than 12 months,no experience,6 to 12 months,no experience,FALSE,1,1,0,2,2,0,3,3,0
+A2,R3,19-24,Master,8,more than 12 months,no experience,more than 12 months,no experience,6 to 12 months,no experience,FALSE,2,1,1,2,1,1,2,2,0
+A2,R4,19-24,Master,8,more than 12 months,no experience,more than 12 months,no experience,6 to 12 months,no experience,FALSE,0,0,0,1,1,0,2,1,1
+A2,R5,19-24,Master,8,more than 12 months,no experience,more than 12 months,no experience,6 to 12 months,no experience,FALSE,0,0,0,2,1,1,3,1,2
+A2,R6,19-24,Master,8,more than 12 months,no experience,more than 12 months,no experience,6 to 12 months,no experience,FALSE,0,0,0,3,3,0,4,4,0
+A2,R7,19-24,Master,8,more than 12 months,no experience,more than 12 months,no experience,6 to 12 months,no experience,FALSE,1,1,0,2,1,1,3,3,0
+A4,R1,25-30,Bachelor,10,more than 12 months,more than 12 months,up to 6 months,more than 12 months,up to 6 months,6 to 12 months,FALSE,1,1,0,2,2,0,3,2,1
+A4,R2,25-30,Bachelor,10,more than 12 months,more than 12 months,up to 6 months,more than 12 months,up to 6 months,6 to 12 months,FALSE,1,1,0,2,2,0,3,2,1
+A4,R3,25-30,Bachelor,10,more than 12 months,more than 12 months,up to 6 months,more than 12 months,up to 6 months,6 to 12 months,FALSE,2,1,1,2,2,0,2,2,0
+A4,R4,25-30,Bachelor,10,more than 12 months,more than 12 months,up to 6 months,more than 12 months,up to 6 months,6 to 12 months,FALSE,0,0,0,1,1,0,2,2,0
+A4,R5,25-30,Bachelor,10,more than 12 months,more than 12 months,up to 6 months,more than 12 months,up to 6 months,6 to 12 months,FALSE,0,0,0,2,1,1,3,2,1
+A4,R6,25-30,Bachelor,10,more than 12 months,more than 12 months,up to 6 months,more than 12 months,up to 6 months,6 to 12 months,FALSE,0,0,0,3,3,0,4,4,0
+A4,R7,25-30,Bachelor,10,more than 12 months,more than 12 months,up to 6 months,more than 12 months,up to 6 months,6 to 12 months,FALSE,1,1,0,2,2,0,3,3,0
+A5,R1,19-24,Bachelor,7,6 to 12 months,6 to 12 months,6 to 12 months,up to 6 months,up to 6 months,up to 6 months,FALSE,1,1,0,2,1,1,3,3,0
+A5,R2,19-24,Bachelor,7,6 to 12 months,6 to 12 months,6 to 12 months,up to 6 months,up to 6 months,up to 6 months,FALSE,1,1,0,2,1,1,3,3,0
+A5,R3,19-24,Bachelor,7,6 to 12 months,6 to 12 months,6 to 12 months,up to 6 months,up to 6 months,up to 6 months,FALSE,2,1,1,2,0,2,2,1,1
+A5,R4,19-24,Bachelor,7,6 to 12 months,6 to 12 months,6 to 12 months,up to 6 months,up to 6 months,up to 6 months,FALSE,0,0,0,1,1,0,2,2,0
+A5,R5,19-24,Bachelor,7,6 to 12 months,6 to 12 months,6 to 12 months,up to 6 months,up to 6 months,up to 6 months,FALSE,0,0,0,2,1,1,3,3,0
+A5,R6,19-24,Bachelor,7,6 to 12 months,6 to 12 months,6 to 12 months,up to 6 months,up to 6 months,up to 6 months,FALSE,0,0,0,3,3,0,4,4,0
+A5,R7,19-24,Bachelor,7,6 to 12 months,6 to 12 months,6 to 12 months,up to 6 months,up to 6 months,up to 6 months,FALSE,1,1,0,2,1,1,3,3,0
+A7,R1,25-30,Master,9,more than 12 months,more than 12 months,more than 12 months,more than 12 months,more than 12 months,more than 12 months,FALSE,1,1,0,2,1,1,3,3,0
+A7,R2,25-30,Master,9,more than 12 months,more than 12 months,more than 12 months,more than 12 months,more than 12 months,more than 12 months,FALSE,1,1,0,2,1,1,3,3,0
+A7,R3,25-30,Master,9,more than 12 months,more than 12 months,more than 12 months,more than 12 months,more than 12 months,more than 12 months,FALSE,2,2,0,2,0,2,2,2,0
+A7,R4,25-30,Master,9,more than 12 months,more than 12 months,more than 12 months,more than 12 months,more than 12 months,more than 12 months,FALSE,0,0,0,1,1,0,2,2,0
+A7,R5,25-30,Master,9,more than 12 months,more than 12 months,more than 12 months,more than 12 months,more than 12 months,more than 12 months,FALSE,0,0,0,2,1,1,3,3,0
+A7,R6,25-30,Master,9,more than 12 months,more than 12 months,more than 12 months,more than 12 months,more than 12 months,more than 12 months,FALSE,0,0,0,3,2,1,4,4,0
+A7,R7,25-30,Master,9,more than 12 months,more than 12 months,more than 12 months,more than 12 months,more than 12 months,more than 12 months,FALSE,1,1,0,2,1,1,3,3,0
+A8,R1,25-30,Doctorate,9,more than 12 months,more than 12 months,more than 12 months,no experience,up to 6 months,no experience,FALSE,1,1,0,2,2,0,3,3,0
+A8,R2,25-30,Doctorate,9,more than 12 months,more than 12 months,more than 12 months,no experience,up to 6 months,no experience,FALSE,1,1,0,2,0,2,3,3,0
+A8,R3,25-30,Doctorate,9,more than 12 months,more than 12 months,more than 12 months,no experience,up to 6 months,no experience,FALSE,2,2,0,2,0,2,2,2,0
+A8,R4,25-30,Doctorate,9,more than 12 months,more than 12 months,more than 12 months,no experience,up to 6 months,no experience,FALSE,0,0,0,1,0,1,2,2,0
+A8,R5,25-30,Doctorate,9,more than 12 months,more than 12 months,more than 12 months,no experience,up to 6 months,no experience,FALSE,0,0,0,2,2,0,3,3,0
+A8,R6,25-30,Doctorate,9,more than 12 months,more than 12 months,more than 12 months,no experience,up to 6 months,no experience,FALSE,0,0,0,3,2,1,4,4,0
+A8,R7,25-30,Doctorate,9,more than 12 months,more than 12 months,more than 12 months,no experience,up to 6 months,no experience,FALSE,1,1,0,2,0,2,3,3,0
+A10,R1,25-30,Doctorate,8,more than 12 months,no experience,more than 12 months,no experience,more than 12 months,no experience,FALSE,1,1,0,2,2,0,3,3,0
+A10,R2,25-30,Doctorate,8,more than 12 months,no experience,more than 12 months,no experience,more than 12 months,no experience,FALSE,1,1,0,2,2,0,3,3,0
+A10,R3,25-30,Doctorate,8,more than 12 months,no experience,more than 12 months,no experience,more than 12 months,no experience,FALSE,2,2,0,2,2,0,2,2,0
+A10,R4,25-30,Doctorate,8,more than 12 months,no experience,more than 12 months,no experience,more than 12 months,no experience,FALSE,0,0,0,1,1,0,2,2,0
+A10,R5,25-30,Doctorate,8,more than 12 months,no experience,more than 12 months,no experience,more than 12 months,no experience,FALSE,0,0,0,2,1,1,3,2,1
+A10,R6,25-30,Doctorate,8,more than 12 months,no experience,more than 12 months,no experience,more than 12 months,no experience,FALSE,0,0,0,3,3,0,4,4,0
+A10,R7,25-30,Doctorate,8,more than 12 months,no experience,more than 12 months,no experience,more than 12 months,no experience,FALSE,1,1,0,2,2,0,3,3,0

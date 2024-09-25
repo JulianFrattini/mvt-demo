@@ -11,6 +11,13 @@ The research synthesis uses an explicit framework for evolving empirical evidenc
 
 ## Artifact Structure
 
+The repository contains the following directories and files:
+
+* data/ : directory containing all raw data
+  * femmer-2014.csv : data from the original study[^1], originally [published](https://doi.org/10.5281/zenodo.7499290) and later [assembled](https://zenodo.org/records/10562690).
+* src/ : directory containing all source code
+  * evidence-evolution.Rmd : notebook demonstrating the application of the framework for evolving empirical evidence
+
 ## System Requirements and Setup
 
 ## Usage
