@@ -11,12 +11,14 @@ knitr::opts_chunk$set(echo = TRUE)
 library(tidyverse)
 
 library(ggdag) # visualization and analysis of DAGs
+
+library(lme4) # fitting linear mixed models
 ```
 
 This notebook demonstrates the application of the evidence evolution framework by applying it to existing evidence from the domain of requirements quality research.
 In this application, we put the evidence from three primary studies investigating the same phenomenon into relation with each other.
 
-## Step 1: Original Study
+## Evidence 1: Original Study
 
 The original study by Femmer et al.[^1] studied the impact that the use of passive voice has on the domain modeling activity.
 They formulate the following research question:
@@ -25,18 +27,12 @@ They formulate the following research question:
 
 ### Hypothesis h1
 
-The authors imply a simple hypothesis $h_1:=pv \rightarrow A^-$ (i.e., the use of passive voice $pv$ impacts the number of missing associations $A^-$).
-
-```{r hypothesis-h1-def}
-h1 <- associations.missing ~ passive
-```
-
-
+The authors imply a simple hypothesis $h_1:=pv \rightarrow Asc^-$ (i.e., the use of passive voice $pv$ impacts the number of missing associations $A^-$).
 The original stud[^1] also investigates the impact on the number of missing actors and domain objects, but these are out of scope for this synthesis.
 The causal assumptions can be visualized in the following directed, acyclic graph (DAG).
 
 ```{r hypothesis-h1-dag}
-dag_e1 <- dagify(
+h1.dag <- dagify(
   mact ~ pv,
   mobj ~ pv,
   masc ~ pv,
@@ -48,7 +44,7 @@ dag_e1 <- dagify(
                 y=c(pv=1, mact=1.5, mobj=1, masc=0.5))
 )
 
-ggdag_status(dag_e1, 
+ggdag_status(h1.dag, 
              use_labels = "label", 
              text = FALSE) +
   guides(fill = "none", color = "none") + 
@@ -64,6 +60,18 @@ The authors then counted the number of missing actors, domain objects, and assoc
 
 ```{r data-d1-loading}
 d1 <- read.csv(file="../data/femmer-2014.csv")
+
+# cast categorical variables to actual factors
+cat.exp <- c("no experience", "up to 6 months", "6 to 12 months", "more than 12 months")
+d1 <- d1 %>% 
+  mutate(
+    ExpProgAca <- factor(ExpProgAca, levels=cat.exp, ordered=TRUE),
+    ExpProgInd <- factor(ExpProgInd, levels=cat.exp, ordered=TRUE), 
+    ExpSEAca <- factor(ExpSEAca, levels=cat.exp, ordered=TRUE),
+    ExpSEInd <- factor(ExpSEInd, levels=cat.exp, ordered=TRUE),
+    ExpREAca <- factor(ExpREAca, levels=cat.exp, ordered=TRUE),
+    ExpREInd <- factor(ExpREInd, levels=cat.exp, ordered=TRUE)
+  )
 ```
 
 The following figure shows a simple visualization of the distribution of the number of missing domain elements (actors, domain objects, and associations) for the `active` and `passive` treatment of the requirements sentences.
@@ -96,32 +104,172 @@ wilcox.test(
 )
 ```
 
-Since any statistical test is equivalent to a linear model, we can instead test the hypothesis directly using `stats::lm`.
+Evidence $e_1=E(h_1, d_1, m_1)$ concludes that passive voice has a statistically significant impact on the number of missing associations $Asc^-$ with a p-value of around 0.001.
+
+## Evidence 2: Reanalysis 
+
+Since statistical null-hypothesis significance tests are equivalent to a linear model,[^4] we can replace the Wilcoxon rank sum test with a linear model, i.e., `stats::lm`.
+
+### Method m2
+
+We have two means (one per `passive` value) and a non-parametric outcome variable.
 We do not need to transform the variable `associations.missing` to ranks since the values are already equivalent to ranks.
 This way, we do not lose any information through the rank transformation and the resulting confidence interval remains interpretable.
 
-```{r method-m1-transformed}
-e1.associations <- lm(
+```{r method-m2}
+# explicit definition of the causal hypothesis
+h1 <- associations.missing ~ passive
+
+# defining a linear model with the same causal hypothesis h1 and the previous data d1
+e2 <- lm(
   formula = h1, 
   data = d1)
-summary(e1.associations)
+
+# investigating the model parameters
+summary(e2)
 ```
 
-The p-value from the linear model is very similar to the p-value of the Wilcoxon rank sum test.
+From the parameters of the fitted linear model, we can obtain the confidence interval of the factor `passive` on the response variable `Asc^-`.
 
-### Conclusion
-
-Finally, we can calculate the actual confidence interval of the independent variable `passive` on the outcome variable
-
-```{r e1-ci}
+```{r evidence-e2}
 confint(
-  e1.associations, 
+  e2, 
   parm="passiveTRUE", 
   level=0.95)
 ```
 
-This confidence interval $ci_{e_1}=[0.23, 0.84]$ represents a statistically significant impact of the independent variable _passive voice_ on the dependent variable _number of missing associations_.
+The 95%-confidence interval is strictly positive, i.e., passive voice has a significant impact on the number of missing associations.
+As such, $e_1=E(h_1, d_1, m_2)$ agrees with $e_1$.
+This reanalysis, also referred to as a _test of robustness_, suggests that the conclusions drawn from $e_1$ about the impact of passive voice on the number of missing associations from a domain model is valid.
+
+## Evidence 3: Revision
+
+A follow-up study[^2] voiced concerns about the causal assumptions in the original study.[^1]
+
+### Hypothesis h2
+
+Particularly, the reanalysis stated the following, additional assumptions:
+
+1. Missing actors and objects in a domain model might increase to missing associations, since at least one of the nodes in the graph is missing.
+2. Academic and industrial experience in requirements engineering might reduce the number of missing associations, as they increase the likelihood of previous modeling experience.
+
+This entails the following DAG.
+
+```{r hypothesis-h2-dag}
+h2.dag <- dagify(
+  mact ~ pv + exp.aca + exp.ind,
+  mobj ~ pv + exp.aca + exp.ind,
+  masc ~ pv + mact + mobj + exp.aca + exp.ind,
+  
+  exposure = "pv",
+  outcome = "masc",
+  labels = c(pv="passive.voice", mact="missing.actors", mobj="missing.objects", masc="missing.associations", exp.aca="Academic Experience in RE", exp.ind="Industrial Experience in RE"),
+  coords = list(x=c(pv=0.7, mact=2, mobj=2, masc=2, exp.aca=0, exp.ind=0),
+                y=c(pv=1, mact=1.5, mobj=0.5, masc=1, exp.aca=0.5, exp.ind=1.5))
+)
+
+ggdag_status(h2.dag, 
+             use_labels = "label", 
+             text = FALSE) +
+  guides(fill = "none", color = "none") + 
+  theme_dag()
+```
+
+### Conclusion
+
+Deriving a linear model from this DAG results in the following formula and confidence interval.
+
+```{r evidence-e3}
+# explicit definition of the new causal hypothesis h2
+h2 <- associations.missing ~ passive + actors.missing + objects.missing + ExpREAca + ExpREInd
+
+# defining a linear model with the new causal hypothesis h2 and the previous data d1
+e3 <- lm(
+  formula = h2, 
+  data = d1)
+
+confint(e3, parm="passiveTRUE", level=0.95)
+```
+
+Now, the confidence interval is not strictly positive anymore, i.e., $e_3=E(h_2, d_1, m_2)$ disagrees with $e_1$ and $e_2$.
+Inspecting the model summary, however, reveals that a few other factors were deemed significant.
+
+```{r evidence-e3-parameters}
+summary(e3)
+```
+
+For example, the influence of missing objects on missing associations is deemed significant.
+
+```{r evidence-e3-mobj}
+confint(e3, parm="objects.missing", level=0.95)
+```
+
+The 95% confidence interval is strictly positive, suggesting that missing an object has a significant impact on missing further associations.
+Additionally, the parameters suggest that when the variable `ExpREInd` having a value of `more than 12 months` has a significant impact on the number of missing associations.
+
+## Evidence 4: Revision and Reanalysis
+
+The revision[^2] of the hypothesis $h_1$ of the original study included two more assumptions: individual skill and requirements complexity.
+The assumptions are based on the fact that the relatively small sample of 15 participants included both better and worse performing students, and that the individual complexity of each requirement may not be comparable.
+
+### Hypothesis h3
+
+These additional assumptions can be visualized in the following DAG.
+
+```{r hypothesis-h3-dag}
+h3.dag <- dagify(
+  mact ~ pv + exp.aca + exp.ind + skill + req,
+  mobj ~ pv + exp.aca + exp.ind + skill + req,
+  masc ~ pv + mact + mobj + exp.aca + exp.ind + skill + req,
+  
+  exposure = "pv",
+  outcome = "masc",
+  labels = c(pv="passive.voice", mact="missing.actors", mobj="missing.objects", 
+             masc="missing.associations", exp.aca="Academic Experience in RE", 
+             exp.ind="Industrial Experience in RE", skill="Individual Skill", 
+             req="Requirements Complexity"),
+  coords = list(x=c(pv=0.7, mact=2, mobj=2, masc=2, exp.aca=0, exp.ind=0, skill=0, req=0),
+                y=c(pv=1, mact=1.5, mobj=0.5, masc=1, exp.aca=0.5, exp.ind=1.5, skill=0, req=-0.5))
+)
+
+ggdag_status(h3.dag, 
+             use_labels = "label", 
+             text = FALSE) +
+  guides(fill = "none", color = "none") + 
+  theme_dag()
+```
+
+These two factors are typically represented as random factors in a linear model.
+
+```{r hypothesis-h3-formula}
+# explicit definition of the new causal hypothesis h2
+h3 <- associations.missing ~ passive + actors.missing + objects.missing + ExpREAca + ExpREInd + (1|PID) + (1|RID)
+```
+
+### Conclusion
+
+Because the inclusion of random factors in a linear model requires using a linear mixed model (LMM), the revision entails a reanalysis, i.e., replacing $h_2$ with $h_3$ also necessitates replacing $m_2$ (LM) with $m_3$ (LMM).
+
+```{r evidence-e4}
+e4 <- lmer(formula = h3, data = d1)
+
+confint(e4, level=0.95)
+```
+
+The confidence interval of the `passive` factor from $e_3$ is similar to the one from $e_4$, i.e.,
+
+$$ci_{e_3}(passive) = [-0.06, 0.70] \approx [-0.17, 0.82] = ci_{e_4}(passive) $$
+
+Additionally, the only remaining factor with a strictly positive confidence interval is the number of missing objects `objects.missing`.
+
+```{r evidence-e4-mobj}
+confint(e4, parm="objects.missing", level=0.95)
+```
+
+The new evidence $e_4=E(h_3, d_1, m_3)$ supports the conclusions of $e_3$.
 
 [^1]: Femmer, H., Kučera, J., & Vetrò, A. (2014, September). On the impact of passive voice requirements on domain modelling. In Proceedings of the 8th ACM/IEEE international symposium on empirical software engineering and measurement (pp. 1-4). https://doi.org/10.1145/2652524.2652554
 [^2]: Frattini, J., Fucci, D., Torkar, R., & Mendez, D. (2024, April). A second look at the impact of passive voice requirements on domain modeling: Bayesian reanalysis of an experiment. In Proceedings of the 1st IEEE/ACM International Workshop on Methodological Issues with Empirical Studies in Software Engineering (pp. 27-33). https://doi.org/10.1145/3643664.3648211
 [^3]: Frattini, J., Fucci, D., Torkar, R., Montgomery, L., Unterkalmsteiner, M., Fischbach, J., & Mendez, D. (2024). Applying Bayesian Data Analysis for Causal Inference about Requirements Quality: A Replicated Experiment. arXiv preprint: https://arxiv.org/abs/2401.01154
+[^4]: https://lindeloev.github.io/tests-as-linear/
+[^5]: Furia, C. A., Feldt, R., & Torkar, R. (2019). Bayesian data analysis in empirical software engineering research. IEEE Transactions on Software Engineering, 47(9), 1786-1810.
