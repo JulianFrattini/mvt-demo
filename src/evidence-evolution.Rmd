@@ -147,7 +147,7 @@ This reanalysis, also referred to as a _test of robustness_, suggests that the c
 
 ## Evidence e3: Revision
 
-A follow-up study[^2] voiced concerns about the causal assumptions in the original study.[^1]
+A follow-up study[^2] voiced concerns about the causal assumptions in the original study.
 
 ### Hypothesis h2
 
@@ -202,7 +202,7 @@ Additionally, the coefficients indicate that the number of missing objects may h
 
 ## Evidence e4: Revision and Reanalysis
 
-Another revision in scope of the follow-up study[^2] was the consideration of random effects.
+Another revision in scope of the follow-up study was the consideration of random effects.
 
 ### Hypothesis h3
 
@@ -233,7 +233,7 @@ ggdag_status(h3.dag,
 These two factors are typically represented as random factors in a linear model.
 
 ```{r hypothesis-h3-formula}
-# explicit definition of the new causal hypothesis h2
+# explicit definition of the new causal hypothesis
 h3 <- associations.missing ~ passive + # main factor of interest
   actors.missing + objects.missing + # confounders
   (1|PID) + (1|RID) # random effects
@@ -259,7 +259,7 @@ confint(e4, parm="objects.missing", level=0.95)
 
 ## Evidence e5: Revision
 
-The revision[^2] of the hypothesis $h_1$ of the original study included one more assumption.
+The revision of the hypothesis $h_1$ of the original study included one more assumption.
 Academic and industrial experience in requirements engineering might reduce the number of missing associations, as they increase the likelihood of previous modeling experience.
 
 ### Hypothesis h4
@@ -417,6 +417,215 @@ conditional_effects(e6, effects="passive", trials=1)
 ```
 
 The overlap between the two confidence intervals shows that the use of passive voice does not significantly cause more missing associations.
+
+## Evidence e7: Replication
+
+A second follow-up study collected new data about the hypothesis.
+
+### Data d2
+
+During this study[^3], the researchers conducted a crossover-design experiment involving 25 participants, mostly from industry.
+The experimental task was the same (i.e., deriving domain models from natural language requirements sentences), but the material differed.
+Additionally, due to the crossover design, participants were not divided into a treatment and control group, but received all levels of the treatment (just in different orders).
+Also, the experiment involved another treatment (the use of _ambiguous pronouns_) which is not relevant for the current phenomenon.
+Hence, we discard it.
+
+```{r data-d2-loading}
+d2<- read.csv(file="../data/frattini-2024.csv")
+
+# determine the values of the categorical variables
+categories.degree <- c("High-School", "Bachelor's degree", "Master's degree")#, "Ph.D.")
+categories.domain.knowledge.os <- 1:5
+categories.domain.knowledge.db <- 2:5
+categories.occurrence <- c("None", "Rarely", "From time to time", "Often")
+categories.roles <- c("role.RE", "role.Arch", "role.Dev", "role.MGT", "role.none")
+  
+# cast the categorical variables to factors such that they are recognized properly
+d2 <- d2 %>% 
+  mutate(
+    RQ = factor(RQ, levels=0:3, ordered=FALSE),
+    edu = factor(edu, levels=categories.degree, ordered=TRUE),
+    dom.os = factor(dom.os, levels=categories.domain.knowledge.os, ordered=TRUE),
+    dom.db = factor(dom.db, levels=categories.domain.knowledge.db, ordered=TRUE),
+    model.occ = factor(model.occ, levels=categories.occurrence, ordered=TRUE),
+    tool = factor(tool, levels=categories.occurrence, ordered=TRUE),
+    
+    primary.role = factor(primary.role, levels=categories.roles, ordered=FALSE)
+  ) %>% 
+  rename(all_of(c(passive = "PassiveVoice"))) %>% 
+  filter(RQ %in% c(0, 1))
+```
+
+The following figure shows a simple visualization of the distribution of the number of missing domain elements for the `active` and `passive` treatment of the requirements sentences.
+Actors and objects were combined to `entities` because there were not many actors in the requirements artifacts.
+
+```{r data-d2-visualization}
+d2 %>% 
+  select(passive, entities.missing, associations.missing) %>% 
+  pivot_longer(
+    cols = c(entities.missing, associations.missing),
+    names_to = "dependent.variable",
+    values_to = "count"
+  ) %>% 
+  ggplot(aes(y=dependent.variable, x=count, color=passive)) +
+    geom_boxplot()
+```
+
+### Conclusion
+
+The new data allows to produce evidence $e_7$ that acts as a replication of $e_1$, i.e., uses the same hypothesis $h_1$ and the same analysis method $m_1$, but data $d_2$ instead of $d_1$.
+Due to the crossover design, the data is paired, however.
+
+```{r data-d2-paired}
+d2.paired <- d2 %>% 
+  select(PID, RQ, associations.missing) %>% 
+  reshape(idvar=c("PID"), timevar="RQ", direction="wide") %>% 
+  rename(all_of(c(baseline = "associations.missing.0",
+                  treatment = "associations.missing.1")))
+```
+
+To produce evidence $e_7=E(h_1, d_2, m_1)$, we need to adapt $m_1$ for paried data (i.e., set `paired = TRUE`).
+
+```{r evidence-e7}
+wilcox.test(
+  x=d2.paired$baseline, 
+  y=d2.paired$treatment,
+  conf.int = TRUE,
+  conf.level = 0.95,
+  paired = TRUE
+)
+```
+
+The resulting p-value of 0.026 differs slightly from the p-value of $e_1$ (0.001), but with a significance level of $\alpha=0.05$, $e_1$ and $e_7$ would agree.
+
+## Evidence e8: Replication
+
+The new data also allows to produce evidence $e_8$ that acts as a replication of $e_4$, i.e., uses the same hypothesis $h_3$ and the same analysis method $m_3$, but data $d_2$ instead of $d_1$.
+Since actors and objects were combined to entities in $d_2$, we need to slightly adapt the hypothesis.
+
+```{r hypothesis-h3-combined}
+h3.c <- associations.missing ~ passive + # main factor of interest
+  entities.missing + # confounder
+  (1|PID) + (1|RID) # random effects
+```
+
+To make the evaluation easier to compare, we can re-evaluate $e_4$ with this hypothesis.
+
+```{r data-d1-combined}
+d1.c <- d1 %>% mutate(
+  entities.missing = actors.missing + objects.missing,
+  entities.expected = actors.expected + objects.expected
+  )
+```
+
+```{r evidence-e4-combined}
+e4.c <- lmer(formula = h3.c, data = d1.c)
+
+ggcoef_compare(list("Original evidence e4" = e4, 
+                    "Combined evidence e4.c" = e4.c), 
+               include = c("passive", "actors.missing", "objects.missing", "entities.missing"))
+```
+
+As the forest plot fo coefficients shows, the combination does not affect the assumed impact of passive voice on the outcome variable.
+The combination of actors and objects missing results in a slightly more cautious impact of missing entities on missing associations.
+
+### Conclusion
+
+```{r evidence-e8}
+e8 <- lmer(formula = h3.c, data = d2)
+
+ggcoef_compare(list("Evidence e4.c" = e4.c, 
+                    "Replication e8" = e8), 
+               include = c("passive", "entities.missing"))
+```
+
+The conclusions differ vastly.
+While $e_4$ still assumes a significant impact of the use of passive voice on the number of missing associations, $e_8$ strongly disagrees.
+On the other hand, the assumed impact of the number of missing entities on the number of missing associations is assumed to be much stronger.
+
+## Evidence e9: Revision
+
+```{r hypothesis-h5}
+h5 <- associations.missing ~ 1 + passive +
+  entities.missing + (1|PID) + 
+  RQ*period +
+  duration.scaled + 
+  exp.se.scaled + exp.re.scaled + edu + primary.role + 
+  model.train + model.occ +
+  dom.os + dom.db
+```
+
+```{r evidence-e9}
+e9 <- lmer(formula = h5, data = d2)
+ggcoef_model(e9)
+```
+
+```{r evidence-e9-comparison}
+performance::r2(e8)
+performance::r2(e9)
+```
+
+While the marginal $R^2$ value of $e_9$ is greater than that of $e_8$ (which suggests that $h_5$ has higher internal validity than $h_4$), the diagnostic output indicates that $e_9$ might be a singular fit.
+
+```{r evidence-e9-singular}
+lme4::isSingular(e9)
+```
+
+The check via `lme4::isSingular` confirms this. 
+The singularity of $e9$ indicates that a LMM is not the right method for analysing the data $d_2$ under the hypothesis $h_5$. 
+This calls for a reanalysis.
+
+## Evidence e10: Reanalysis
+
+Similar to how $e_6$ improved over $e_5$ by replacing the analysis method $m_3$ of linear mixed models with $m_4$, Bayesian models, we produce $e_{10}=E(h_5, d_2, m_4)$.
+
+```{r formula}
+h5.b <- associations.missing | trials(associations.expected) ~ 1 + 
+  (1|PID) + 
+  RQ*period +
+  entities.missing +
+  duration.scaled + 
+  exp.se.scaled + exp.re.scaled + edu + primary.role + 
+  model.train + model.occ +
+  dom.os + dom.db
+```
+
+```{r priors}
+e10.priors <- c(
+  prior(normal(-0.9, 0.1), class=Intercept),
+  prior(normal(0, 0.5), class=b, coef="RQ1"),
+  #prior(normal(0, 0.5), class=b, coef="RQ2"),
+  #prior(normal(0, 0.5), class=b, coef="RQ3"),
+  prior(normal(0, 0.1), class=b),
+  prior(weibull(2, 0.5), class=sd)
+)
+```
+
+```{r model-sample-priors}
+abc <-
+  brm(data = d2, family = binomial, h5.b, prior = e10.priors,
+    iter = 4000, warmup = 1000, chains = 4, cores = 4,
+    seed = 4, sample_prior="only",
+    file = "fits/e10.prior"
+  )
+```
+
+```{r prior-predictive-check}
+brms::pp_check(abc, type="bars", ndraws=ndraws)
+```
+
+```{r model}
+e10 <-
+  brm(data = d2, family = binomial, h5.b, prior = e10.priors,
+    iter = 4000, warmup = 1000, chains = 4, cores = 4,
+    seed = 4, 
+    file = "fits/e10"
+  )
+```
+
+```{r posterior-predictive-check}
+brms::pp_check(e10, type="bars", ndraws=ndraws)
+```
 
 [^1]: Femmer, H., Kučera, J., & Vetrò, A. (2014, September). On the impact of passive voice requirements on domain modelling. In Proceedings of the 8th ACM/IEEE international symposium on empirical software engineering and measurement (pp. 1-4). https://doi.org/10.1145/2652524.2652554
 [^2]: Frattini, J., Fucci, D., Torkar, R., & Mendez, D. (2024, April). A second look at the impact of passive voice requirements on domain modeling: Bayesian reanalysis of an experiment. In Proceedings of the 1st IEEE/ACM International Workshop on Methodological Issues with Empirical Studies in Software Engineering (pp. 27-33). https://doi.org/10.1145/3643664.3648211
