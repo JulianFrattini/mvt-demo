@@ -47,4 +47,6 @@ po/*~
 
 # RStudio Connect folder
 rsconnect/
-src/fits/
+
+
+*.Rds
