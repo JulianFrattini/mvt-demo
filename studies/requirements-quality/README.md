@@ -16,6 +16,7 @@ The sub-directories of this directory are organized as follows:
 |   ├── femmer-2014.csv : data from the original study[^1], originally [published](https://doi.org/10.5281/zenodo.7499290) and later [assembled](https://zenodo.org/records/10562690).
 |   └── frattini-2024.csv : data from the conceptual replication[^3], archived [on Zenodo](https://zenodo.org/records/12205290)
 └── src : source code 
+    ├── model-eval.R : utility method to evaluate Bayesian models
     ├── requirements-quality-synthesis.Rmd : structured evidence evolution
     ├── requirements-quality-synthesis.html : pre-compiled version of the evolution 
     └── requirements-quality-synthesis-detailed.Rmd : a more fine-grained evidence evolution narrative, where the contributions of each study are split up into smaller increments

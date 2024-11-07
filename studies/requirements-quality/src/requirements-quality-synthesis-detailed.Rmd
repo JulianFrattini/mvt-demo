@@ -346,7 +346,7 @@ Bayesian approaches are understood to be more robust, sophisticated, and preserv
 
 The Bayesian model, other than the linear mixed model, can represent the hypothesis properly as a Binomial probability distribution.
 
-```{r hypothesis-h3-bayesian}
+```{r hypothesis-h4-bayesian}
 h4.b <- (associations.missing | trials(associations.expected) ~ 
            passive + actors.missing + objects.missing +
            ExpREAca + ExpREInd + (1|RID) + (1|PID))

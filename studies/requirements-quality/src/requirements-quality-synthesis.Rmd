@@ -1,0 +1,418 @@
+---
+title: "Requirements Quality Synthesis"
+author: "Anonymous"
+date: '2024-11-07'
+output: html_document
+---
+
+```{r setup, include=FALSE}
+knitr::opts_chunk$set(echo = TRUE)
+
+library(tidyverse)
+library(patchwork) # alignment of figures
+
+library(ggdag) # visualization and analysis of DAGs
+library(ggstats) # visualization of coefficient plots
+
+library(lme4) # fitting linear mixed models
+library(brms) # fitting Bayesian hierarchical models
+library(marginaleffects) # visualizing marginal effects of Bayesian models
+source("model-eval.R") # deriving conclusions from Bayesian models
+```
+
+This notebook demonstrates the application of the evidence evolution framework by applying it to existing evidence from the domain of requirements quality research.
+In this application, we put the evidence from three primary studies investigating the same phenomenon into relation with each other.
+
+## Evidence e1: Original Study
+
+The original study by Femmer et al.[^1] studied the impact that the use of passive voice has on the domain modeling activity.
+They formulate the following research question:
+
+> Is the use of passive sentences in requirements harmfulfor domain modelling?
+
+### Hypothesis h1
+
+The authors imply a simple, two-variable hypothesis $h_1:=pv \rightarrow Asc^-$ (i.e., the use of passive voice $pv$ impacts the number of missing associations $Asc^-$).
+The original study also investigates the impact on the number of missing actors ($Act^-$) and domain objects ($Obj^-$) which represent two additional hypotheses, but these are out of scope for this synthesis.
+The causal assumptions can be visualized in the following directed, acyclic graph (DAG).
+
+```{r hypothesis-h1-dag}
+h1.dag <- dagify(
+  mact ~ pv,
+  mobj ~ pv,
+  masc ~ pv,
+  
+  exposure = "pv",
+  outcome = "masc",
+  labels = c(pv="passive.voice", mact="missing.actors", mobj="missing.objects", masc="missing.associations"),
+  coords = list(x=c(pv=1, mact=2, mobj=2, masc=2),
+                y=c(pv=1, mact=1.5, mobj=0.5, masc=1))
+)
+
+ggdag_status(h1.dag, 
+             use_labels = "label", 
+             text = FALSE) +
+  guides(fill = "none", color = "none") + 
+  theme_dag()
+```
+
+### Data d1
+
+To investigate this hypothesis, the authors perform a parallel-design controlled experiment with 15 university students as participants.
+The participants are randomly divided into two groups and receive seven single-sentence requirements specifications, either written in active or passive voice.
+Their task was to generate a domain model from each of the requirements specifications.
+The authors then counted the number of missing actors, domain objects, and associations (collectively called: _elements_ of the domain model) in the resulting domain model.
+
+```{r data-d1-loading}
+d1 <- read.csv(file="../data/femmer-2014.csv")
+
+# cast categorical variables to actual factors
+cat.exp <- c("no experience", "up to 6 months", "6 to 12 months", "more than 12 months")
+d1 <- d1 %>% 
+  mutate(
+    ExpProgAca <- factor(ExpProgAca, levels=cat.exp, ordered=TRUE),
+    ExpProgInd <- factor(ExpProgInd, levels=cat.exp, ordered=TRUE), 
+    ExpSEAca <- factor(ExpSEAca, levels=cat.exp, ordered=TRUE),
+    ExpSEInd <- factor(ExpSEInd, levels=cat.exp, ordered=TRUE),
+    ExpREAca <- factor(ExpREAca, levels=cat.exp, ordered=TRUE),
+    ExpREInd <- factor(ExpREInd, levels=cat.exp, ordered=TRUE)
+  )
+```
+
+The following figure shows a simple visualization of the distribution of the number of missing domain elements (actors, domain objects, and associations) for the `active` and `passive` treatment of the requirements sentences.
+
+```{r data-d1-visualization}
+d1 %>% 
+  select(passive, actors.missing, objects.missing, associations.missing) %>% 
+  pivot_longer(
+    cols = c(actors.missing, objects.missing, associations.missing),
+    names_to = "dependent.variable",
+    values_to = "count"
+  ) %>% 
+  ggplot(aes(y=dependent.variable, x=count, color=passive)) +
+    geom_boxplot()
+```
+
+### Method m1
+
+Finally, the authors performed a null-hypothesis significance test (NHST) to see if there is a statistically significant difference in the number of missing elements between the active or passive group.
+Of particular interest to this synthesis is the difference in the number of missing _associations_.
+The authors use the Mann-Whitney U test (i.e., a Wilcoxon rank-sum test) with a 95% confidence interval since the data is not normally distributed.
+
+To derive a statistical model from the causal model implied by the hypothesis, we can determine the adjustment set.
+
+```{r hypothesis-h1-adjustment-set}
+ggdag::ggdag_adjustment_set(h1.dag, exposure="pv", outcome="masc")
+```
+
+All backdoor paths from the exposure `passive.voice` to the outcome `missing.associations` are unconditionally closed.
+This produces the following statistical model.
+
+```{r hypothesis-h1-statistical-model}
+h1 <- (associations.missing ~ passive)
+```
+
+Executing the selected analysis method $m_1$ on the data $d_1$ under the causal assumptions encoded in hypothesis $h_1$ produces the piece of evidence $e_1$.
+
+```{r method-m1-original}
+e1 <- wilcox.test(
+  formula = h1,
+  data = d1,
+  conf.int = TRUE,
+  conf.level = 0.95,
+  paired = FALSE
+)
+```
+
+### Conclusion
+
+Evidence $e_1$ is produced via a null-hypothesis significance tests.
+Hence, the conclusion it offers comes in form of a p-value.
+
+```{r evidence-e1-conclusion}
+e1$p.value
+```
+
+Evidence $e_1=E(h_1, d_1, m_1)$ concludes that passive voice has a statistically significant impact on the number of missing associations $Asc^-$ with a p-value of around 0.001.
+
+## Evidence e2: Revision and Reanalysis
+
+A follow-up study[^2] voiced concerns about the causal assumptions in the original study as well as the analysis method that they employed.
+It conflates a revision with a reanalysis.
+
+### Hypothesis h4
+
+The revision of the hypothesis $h_1$ from the original study included several additional assumptions:
+
+1. Missing actors and objects in a domain model might increase to missing associations, since at least one of the nodes in the graph is missing.
+2. The relatively small sample of 15 participants included both better and worse performing students.
+3. The individual complexity of each requirement may not be comparable.
+4. Academic and industrial experience in requirements engineering might reduce the number of missing associations, as they increase the likelihood of previous modeling experience
+
+These additional assumptions can be visualized in the following DAG.
+
+```{r hypothesis-h2-dag}
+h2.dag <- dagify(
+  mact ~ pv + exp.aca + exp.ind + skill + req,
+  mobj ~ pv + exp.aca + exp.ind + skill + req,
+  masc ~ pv + mact + mobj + exp.aca + exp.ind + skill + req,
+  
+  exposure = "pv",
+  outcome = "masc",
+  labels = c(pv="passive.voice", mact="missing.actors", mobj="missing.objects", 
+             masc="missing.associations", exp.aca="Academic Experience in RE", 
+             exp.ind="Industrial Experience in RE", skill="Individual Skill", 
+             req="Requirements Complexity"),
+  coords = list(x=c(pv=0.7, mact=2, mobj=2, masc=2, exp.aca=0, exp.ind=0.3, skill=0, req=0.3),
+                y=c(pv=1, mact=1.5, mobj=0.5, masc=1, exp.aca=0.5, exp.ind=0, skill=1.5, req=2))
+)
+
+ggdag_status(h2.dag, use_labels = "label",text = FALSE) +
+  guides(fill = "none", color = "none") + 
+  theme_dag()
+```
+
+### Method m2: Bayesian data analysis
+
+The follow-up study suggested to abandon the NHST and instead employ a Bayesian data analysis approach.
+This approach also requires a statistical model derived from the causal model, which is done again via determining the adjustment set.
+
+```{r hypothesis-h2-adjustment-set}
+ggdag::ggdag_adjustment_set(h2.dag, exposure="pv", outcome="masc")
+```
+
+There are no backdoor paths that require adjustment.
+Still, all available variables are included in the statistical model.
+The mediators help differentiating the direct from the indirect effect.
+The other variables increase the precision of the average causal effect estimation.
+
+```{r hypothesis-h2-formula}
+h2 <- associations.missing ~ passive + 
+  actors.missing + objects.missing + 
+  ExpREAca + ExpREInd + 
+  (1|PID) + (1|RID)
+```
+
+In the Bayesian model, the statistical model can further be projected onto a binomial distribution.
+
+```{r hypothesis-h2-bayesian}
+h2.b <- (associations.missing | trials(associations.expected) ~ 
+           passive + actors.missing + objects.missing +
+           ExpREAca + ExpREInd + (1|RID) + (1|PID))
+```
+
+The following code produces a Bayesian model.
+Additional steps like prior and posterior predictive checks, model summary, marginal and conditional plots, and others have been omitted here, but can be found in the replication package of the follow-up study.
+
+```{r evidence-e2, message=FALSE, warning=FALSE}
+e2.priors <- c(prior(normal(-1, 1), class = Intercept),
+            prior(normal(0, 1), class = b),
+            prior(weibull(2, 1), class = sd, coef = Intercept, group = RID),
+            prior(weibull(2, 1), class = sd, coef = Intercept, group = PID),
+            prior(exponential(1), class = sd))
+
+e2 <-
+  brm(data = d1, family = binomial, h2.b, prior = e2.priors,
+    iter = 4000, warmup = 1000, chains = 4, cores = 4,
+    seed = 4,
+    file = "fits/e2"
+  )
+```
+
+### Conclusion
+
+Method $m_2$ produces a Bayesian model which offers a sample as a conclusion.
+The `evaluate.model` function draws random samples from the trained model and calculates the likelihood that the use of passive voice produces more (`1`), less (`-1`) or and equal amount (`0`) of missing associations.
+
+```{r evidence-e2-conclusion}
+evaluate.model(e2)
+```
+
+Evidence $e_2=E(h_2, d_1, m_2)$ concludes that passive voice does not have a significant impact on the number of missing associations $Asc^-$.
+
+## Evidence e3: Replication
+
+A second follow-up study[^3] contributed an actual replication with new data, which was used to properly replicate $e_1$.
+
+### Data d2
+
+During this study, the researchers conducted a crossover-design experiment involving 25 participants, mostly from industry.
+The experimental task was the same (i.e., deriving domain models from natural language requirements sentences), but the material differed.
+Additionally, due to the crossover design, participants were not divided into a treatment and control group, but received all levels of the treatment (just in different orders).
+Also, the experiment involved another treatment (the use of _ambiguous pronouns_) which is not relevant for the current phenomenon.
+Hence, we discard it.
+
+```{r data-d2-loading}
+d2 <- read.csv(file="../data/frattini-2024.csv")
+
+# determine the values of the categorical variables
+categories.degree <- c("High-School", "Bachelor's degree", "Master's degree")#, "Ph.D.")
+categories.domain.knowledge.os <- 1:5
+categories.domain.knowledge.db <- 2:5
+categories.occurrence <- c("None", "Rarely", "From time to time", "Often")
+categories.roles <- c("role.RE", "role.Arch", "role.Dev", "role.MGT", "role.none")
+  
+# cast the categorical variables to factors such that they are recognized properly
+d2 <- d2 %>% 
+  mutate(
+    RQ = factor(RQ, levels=0:3, ordered=FALSE),
+    edu = factor(edu, levels=categories.degree, ordered=TRUE),
+    dom.os = factor(dom.os, levels=categories.domain.knowledge.os, ordered=TRUE),
+    dom.db = factor(dom.db, levels=categories.domain.knowledge.db, ordered=TRUE),
+    model.occ = factor(model.occ, levels=categories.occurrence, ordered=TRUE),
+    tool = factor(tool, levels=categories.occurrence, ordered=TRUE),
+    
+    primary.role = factor(primary.role, levels=categories.roles, ordered=FALSE)
+  ) %>% 
+  rename(all_of(c(passive = "PassiveVoice"))) %>% 
+  filter(RQ %in% c(0, 1))
+```
+
+The following figure shows a simple visualization of the distribution of the number of missing domain elements for the `active` and `passive` treatment of the requirements sentences.
+Actors and objects were combined to `entities` because there were not many actors in the requirements artifacts.
+
+```{r data-d2-visualization}
+d2 %>% 
+  select(passive, entities.missing, associations.missing) %>% 
+  pivot_longer(
+    cols = c(entities.missing, associations.missing),
+    names_to = "dependent.variable",
+    values_to = "count"
+  ) %>% 
+  ggplot(aes(y=dependent.variable, x=count, color=passive)) +
+    geom_boxplot()
+```
+
+### Conclusion
+
+The replication assumes the same hypothesis $h_1$ and the same analysis method $m_1$, but data $d_2$ instead of $d_1$.
+Due to the crossover design, the data is paired, however.
+
+```{r data-d2-paired}
+d2.paired <- d2 %>% 
+  select(PID, RQ, associations.missing) %>% 
+  reshape(idvar=c("PID"), timevar="RQ", direction="wide") %>% 
+  rename(all_of(c(baseline = "associations.missing.0",
+                  treatment = "associations.missing.1")))
+```
+
+To produce evidence $e_7=E(h_1, d_2, m_1)$, we need to adapt $m_1$ for paired data (i.e., set `paired = TRUE`).
+
+```{r evidence-e3}
+e3 <- wilcox.test(
+  x=d2.paired$baseline, 
+  y=d2.paired$treatment,
+  conf.int = TRUE,
+  conf.level = 0.95,
+  paired = TRUE
+)
+```
+
+Again, the conclusion offered by $e_3$ is a p-value.
+
+```{r evidence-e3-conclusion}
+e3$p.value
+```
+
+
+Evidence $e_3=E(h_1, d_2, m_1)$ agrees with $e_1$ and also concludes that passive voice has a statistically significant impact on the number of missing associations $Asc^-$.
+
+## Evidence e4: Revision and Reanalysis
+
+Additionally, this second follow-up study contributed - once again - a conflated revision and reanalysis.
+
+### Hypothesis h3
+
+The revision formulates the following assumptions:
+
+1. The number of missing actors and the number of missing objects can be combined to form the number of missing entities.
+2. The number of missing associations is further affected by the education, task experience, general experience, and domain knowledge of the participant.
+3. The time it took a participant to produce a domain model `duration` affects the number of missing associations.
+4. Academic and industrial experience in RE may affect the amount of domain knowledge acquired.
+
+This results in the following DAG.
+ 
+```{r hypothesis-h3-dag}
+h3.dag <- dagify(
+  ment ~ pv + exp.aca + exp.ind + skill + req + edu + task + dom + dur,
+  masc ~ pv + ment + exp.aca + exp.ind + skill + req + edu + task + dom + dur,
+  dom ~ exp.aca + exp.ind,
+  
+  exposure = "pv",
+  outcome = "masc",
+  labels = c(pv="passive.voice", ment="missing.enities", 
+             masc="missing.associations", exp.aca="Academic Experience in RE", 
+             exp.ind="Industrial Experience in RE", skill="Individual Skill", 
+             req="requirements.complexity", dur="duration",
+             edu="education", task="task.experience", exp="experience", dom="domain.knowledge"),
+  coords = list(x=c(pv=0.7, ment=2, masc=2, exp.aca=0, exp.ind=0.3, skill=0, req=0.3, 
+                    edu=0.5, task=1, dom=1, dur=1.5),
+                y=c(pv=1, ment=1.5, masc=1, exp.aca=0.5, exp.ind=0, skill=1.5, req=2, 
+                    edu=2.5, task=2.5, dom=0, dur=2.5))
+)
+
+ggdag_status(h3.dag, 
+             use_labels = "label", 
+             text = FALSE) +
+  guides(fill = "none", color = "none") + 
+  theme_dag()
+```
+
+### Method m2
+
+The second follow-up study also applies a Bayesian data analysis approach.
+As before, the statistical model was derived by identifying the adjustment set.
+
+```{r hypothesis-h3-adjustment-set}
+ggdag::ggdag_adjustment_set(h3.dag, exposure="pv", outcome="masc")
+```
+
+Again, the statistical model can be specified as a binomial distribution thanks to the analysis method $m_2$.
+
+```{r hypothesis-h3-statistical-model}
+h3.b <- associations.missing | trials(associations.expected) ~ 1 + 
+  (1|PID) + 
+  passive*period +
+  entities.missing +
+  duration.scaled + 
+  exp.se.scaled + exp.re.scaled + edu + primary.role + 
+  model.train + model.occ +
+  dom.os + dom.db
+```
+
+Note that the random factor `(1|RID)` is missing from this model.
+This is because $RID$ and $RQ$ are perfectly colinear (i.e., every value of $RID$ is associated with exactly one value of $RQ$).
+This produces the following evidence.
+
+```{r evidence-e4}
+e4.priors <- c(
+  prior(normal(-0.9, 0.1), class=Intercept),
+  prior(normal(0, 0.5), class=b, coef="passiveTRUE"),
+  #prior(normal(0, 0.5), class=b, coef="RQ2"),
+  #prior(normal(0, 0.5), class=b, coef="RQ3"),
+  prior(normal(0, 0.1), class=b),
+  prior(weibull(2, 0.5), class=sd)
+)
+
+e4 <-
+  brm(data = d2, family = binomial, h3.b, prior = e4.priors,
+    iter = 4000, warmup = 1000, chains = 4, cores = 4,
+    seed = 4, 
+    file = "fits/e4"
+  )
+```
+
+### Conclusion
+
+Method $m_2$ produces a Bayesian model which offers a sample as a conclusion.
+The `evaluate.model` function draws random samples from the trained model and calculates the likelihood that the use of passive voice produces more (`1`), less (`-1`) or and equal amount (`0`) of missing associations.
+
+```{r evidence-e4-conclusion}
+evaluate.model(e4)
+```
+
+Evidence $e_4=E(h_3, d_2, m_2)$ agrees with $e_2$ and also concludes that passive voice does not have a significant impact on the number of missing associations $Asc^-$.
+
+[^1]: Femmer, H., Kučera, J., & Vetrò, A. (2014, September). On the impact of passive voice requirements on domain modelling. In Proceedings of the 8th ACM/IEEE international symposium on empirical software engineering and measurement (pp. 1-4). https://doi.org/10.1145/2652524.2652554
+[^2]: Frattini, J., Fucci, D., Torkar, R., & Mendez, D. (2024, April). A second look at the impact of passive voice requirements on domain modeling: Bayesian reanalysis of an experiment. In Proceedings of the 1st IEEE/ACM International Workshop on Methodological Issues with Empirical Studies in Software Engineering (pp. 27-33). https://doi.org/10.1145/3643664.3648211
+[^3]: Frattini, J., Fucci, D., Torkar, R., Montgomery, L., Unterkalmsteiner, M., Fischbach, J., & Mendez, D. (2024). Applying Bayesian Data Analysis for Causal Inference about Requirements Quality: A Replicated Experiment. arXiv preprint: https://arxiv.org/abs/2401.01154
