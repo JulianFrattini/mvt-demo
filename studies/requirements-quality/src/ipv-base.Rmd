@@ -1,5 +1,5 @@
 ---
-title: "Requirements Quality Synthesis"
+title: "Requirements Quality Evidence Synthesis"
 author: "Anonymous"
 date: '2024-11-07'
 output: html_document
@@ -17,7 +17,7 @@ library(ggstats) # visualization of coefficient plots
 library(lme4) # fitting linear mixed models
 library(brms) # fitting Bayesian hierarchical models
 library(marginaleffects) # visualizing marginal effects of Bayesian models
-source("model-eval.R") # deriving conclusions from Bayesian models
+source("util/model-eval.R") # deriving conclusions from Bayesian models
 ```
 
 This notebook demonstrates the application of the evidence evolution framework by applying it to existing evidence from the domain of requirements quality research.
@@ -140,7 +140,7 @@ Evidence $e_1=E(h_1, d_1, m_1)$ concludes that passive voice has a statistically
 A follow-up study[^2] voiced concerns about the causal assumptions in the original study as well as the analysis method that they employed.
 It conflates a revision with a reanalysis.
 
-### Hypothesis h4
+### Hypothesis h2
 
 The revision of the hypothesis $h_1$ from the original study included several additional assumptions:
 
