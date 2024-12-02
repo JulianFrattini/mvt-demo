@@ -23,6 +23,10 @@ source("util/model-eval.R") # deriving conclusions from Bayesian models
 This notebook demonstrates the application of the evidence evolution framework by applying it to existing evidence from the domain of requirements quality research.
 In this application, we put the evidence from three primary studies investigating the same phenomenon into relation with each other.
 
+![Version control view on the evidence evolution](./figs/ipv-vcg-base.png)
+
+The colors of the pieces of evidence in the version control graph correspond to the colors of the three types of evidence evolution as seen in the framework figure (to be found in the base README file).
+
 ## Evidence e1: Original Study
 
 The original study by Femmer et al.[^1] studied the impact that the use of passive voice has on the domain modeling activity.

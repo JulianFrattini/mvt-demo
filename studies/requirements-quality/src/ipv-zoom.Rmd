@@ -25,7 +25,9 @@ This notebook investigates the relationship between the original study on the im
 As such, it goes in-depth into the transition from $e_1$ to $e_2$ as presented in `requirements-quality-synthesis.Rmd`.
 The steps between $e_1$ and $e_2$ as well as their relationship inbetween are visualized in the following figure.
 
-![Version control view on the evidence evolution](./figs/requirements-quality-synthesis-detailed.png)
+![Version control view on the evidence evolution](./figs/ipv-vcg-zoom.png)
+
+The colors of the pieces of evidence in the version control graph correspond to the colors of the three types of evidence evolution as seen in the framework figure (to be found in the base README file).
 
 ## Evidence e1: Original Study
 
@@ -136,6 +138,13 @@ e1$p.value
 
 Evidence $e_1=E(h_1, d_1, m_1)$ concludes that passive voice has a statistically significant impact on the number of missing associations $Asc^-$ with a p-value of around 0.001.
 
+## Omitted steps
+
+The evidence $e_2$ produced in the follow-up study differs from the original evidence $e_1$ in several ways, making it impossible to attribute the change to any of the changes in particular.
+Hence, we reconstruct evidence $e_2$ step by step.
+These next pieces of evidence are the omitted steps in between $e_1$ and $e_2$.
+They were conflated in the original publications but shed light on the validity of the process.
+
 ### Evidence e1.1: Reanalysis 
 
 Since statistical null-hypothesis significance tests are equivalent to a linear model,[^3] we can replace the Wilcoxon rank sum test with a linear model, i.e., `stats::lm`.
@@ -166,12 +175,7 @@ The 95%-confidence interval is not consistent with 0, i.e., passive voice has a 
 As such, $e_{1.1}=E(h_1, d_1, m_{1.2})$ agrees with $e_1$.
 This reanalysis, also referred to as a _test of robustness_, suggests that the conclusions drawn from $e_1$ about the impact of passive voice on the number of missing associations from a domain model is valid.
 
-## Evidence e2: Reanalysis and Revisions
-
-The evidence $e_2$ produced in the follow-up study differs from the original evidence $e_1$ in several ways, making it impossible to attribute the change to any of the changes in particular.
-Hence, we reconstruct evidence $e_2$ step by step.
-
-### Evidence e2.1: Reanalysis
+### Evidence e1.2: Reanalysis
 
 The primary change proclaimed by the follow-up study is the use of Bayesian instead of frequentist methods.
 We can isolate this change by performing a strict reanalysis, i.e., replacing $m_{1.1}$ (linear model) with $m_2$ (Bayesian model).
@@ -185,16 +189,16 @@ h1.b <- (associations.missing | trials(associations.expected) ~ passive)
 ```
 
 Performing the Bayesian data analysis consists of several steps.
-All exepct the most important ones (definition of priors and model training) were omitted for brevity.
+All except the most important ones (definition of priors and model training) were omitted for brevity.
 
 ```{r method-m2-bda}
-e2.1.priors <- c(prior(normal(-1, 1), class = Intercept),
+e1.2.priors <- c(prior(normal(-1, 1), class = Intercept),
             prior(normal(0, 1), class = b))
-e2.1 <-
-  brm(data = d1, family = binomial, h1.b, prior = e2.1.priors,
+e1.2 <-
+  brm(data = d1, family = binomial, h1.b, prior = e1.2.priors,
     iter = 4000, warmup = 1000, chains = 4, cores = 4,
     seed = 4, 
-    file = "fits/e2.1"
+    file = "fits/e1.2"
   )
 ```
 
@@ -204,14 +208,14 @@ For the validity of this step, we resort to existing books[^4] and studies[^5] t
 
 Finally, we obtain the conclusion from the strict reanalysis that produced $e_2.1$.
 
-```{r evidence-e2.1}
-evaluate.model(e2.1)
+```{r evidence-e1.2}
+evaluate.model(e1.2)
 ```
 
 The conclusion suggests that the use of passive voice increases the number of missing associations in about 50% of all cases, has no effect in about 35%, and reduces the number in about 15% of all cases.
-As such, $e_{2.1}$ still agrees with $e_1$ and $e_{1.1}$ about the significance of passive voice.
+As such, $e_{1.2}$ still agrees with $e_1$ and $e_{1.1}$ about the significance of passive voice.
 
-### Evidence e2.2a: Revision 1
+### Evidence e1.3a: Revision 1
 
 The evidence from the follow-up study additionally conducted a revision of the original hypothesis $h_1$.
 However, this revision actually served two separate purposes, which we differentiate here.
@@ -254,7 +258,7 @@ Applying method $m_{1.1}$ to data $d_1$ under the assumption of $h_{2a}$ produce
 ```{r hypothesis-h2a-statistical-model}
 h2a <- (associations.missing ~ passive + actors.missing + objects.missing)
 
-e2.2a <- lm(formula = h2a, data = d1)
+e1.3a <- lm(formula = h2a, data = d1)
 ```
 
 #### Disagnostics
@@ -265,32 +269,32 @@ According to $h_1$, the factor `associations.missing` is independent of `actors.
 If $h_1$ is more internally valid, including both of these factors in the statistical model should not produce any change on the impact of `passive` on the outcome variable.
 The following coefficient plot visualizes the comparison.
 
-```{r evidence-e2.2a-comparison}
+```{r evidence-e1.3a-comparison}
 ggcoef_compare(list("Original evidence e1.1" = e1.1, 
-                    "First revision e2.2a" = e2.2a), 
+                    "First revision e1.3a" = e1.3a), 
                include = c("passive", "actors.missing", "objects.missing"))
 ```
 
 The inclusion of the assumptions $actors.missing \rightarrow associations.missing$ and $objects.missing \rightarrow associations.missing$ barely changes the impact of $passive \rightarrow associations.missing$.
 Technically, this does not offer strong support that $h_{2a}$ is more valid than $h_1$.
 
-```{r evidence-e2.2a-r2}
-summary(e2.2a)
+```{r evidence-e1.3a-r2}
+summary(e1.3a)
 ```
 
 Compared with the multiple $R^2$ of 0.1041 and adjusted $R^2$ of 0.09536 for $e_{1.1}$, the revised hypothesis $h_{2a}$ shows greater precision and is, hence, favorable.
 
 #### Conclusion
 
-The conclusion offered by $e_{2.2a}$ consists of the following confidence interval.
+The conclusion offered by $e_{1.3a}$ consists of the following confidence interval.
 
-```{r evidence-e2.2a}
-confint(e2.2a, parm="passiveTRUE", level=0.95)
+```{r evidence-e1.3a}
+confint(e1.3a, parm="passiveTRUE", level=0.95)
 ```
 
-Evidence $e_{2.2a}$ is a bit more cautious about the impact of passive voice on the number of missing associations from a domain model, but remains positive and, hence, agrees with $e_{1.1}$.
+Evidence $e_{1.3a}$ is a bit more cautious about the impact of passive voice on the number of missing associations from a domain model, but remains positive and, hence, agrees with $e_{1.1}$.
 
-### Evidence e2.2b: Revision 2
+### Evidence e1.3b: Revision 2
 
 The second part of the revision contributed in the follow-up study aimed purely at improving the precision of the evidence.
 
@@ -328,7 +332,7 @@ ggdag_status(h2.dag, use_labels = "label",text = FALSE) +
 
 #### Method m1.2
 
-The backdoor adjustment derives the following statistical model from the hypothesis, which produces the evidence $e_{2.2b}$.
+The backdoor adjustment derives the following statistical model from the hypothesis, which produces the evidence $e_{1.3b}$.
 We need to resort to a *linear mixed model* ($m_{1.2}$) because $h_2$ includes a random factor.
 
 ```{r hypothesis-h2-statistical-model}
@@ -337,7 +341,7 @@ h2 <- associations.missing ~ passive +
   ExpREAca + ExpREInd + 
   (1|PID) + (1|RID)
 
-e2.2b <- lmer(formula = h2, data = d1)
+e1.3b <- lmer(formula = h2, data = d1)
 ```
 
 #### Diagnostics
@@ -345,9 +349,9 @@ e2.2b <- lmer(formula = h2, data = d1)
 Since $e_{2.2a}$ and $e_{2.2b}$ were produced by two slightly different analysis methods (linear model $m_{1.1}$ and linear mixed model $m_{1.2}$), their $R^2$ metrics are not comparable. 
 However, both models can be compared using the Akaike-information-criterion (AIC).
 
-```{r evidence-e2.2b-comparison}
-AIC(e2.2a)
-AIC(e2.2b)
+```{r evidence-e1.3b-comparison}
+AIC(e1.3a)
+AIC(e1.3b)
 ```
 
 The AIC values of the two evidences is within a 2 point range, which is usually considered negligible.
@@ -357,31 +361,115 @@ There is no strong evidence that $h_2$ is more externally valid than $h_2a$.
 
 The conclusion offered by $e_2.2b$ offers the following insight.
 
-```{r evidence-e2.2b-conclusion}
-confint(e2.2b, parm="passiveTRUE", level=0.95)
+```{r evidence-e1.3b-conclusion}
+confint(e1.3b, parm="passiveTRUE", level=0.95)
 ```
 
-Evidence $e_{2.2b}$ suggests that passive voice does not have a statistically significant impact on the number of missing associations from domain models.
+Evidence $e_{1.3b}$ suggests that passive voice does not have a statistically significant impact on the number of missing associations from domain models.
 Comparing the two confidence intervals visualizes this point more clearly.
 
-```{r evidence-e2.2b-cis}
-ggcoef_compare(list("First revision e2.2a" = e2.2a,
-                    "Second revision e2.2b" = e2.2b))
+```{r evidence-e1.3b-cis}
+ggcoef_compare(list("First revision e1.3a" = e1.3a,
+                    "Second revision e1.3b" = e1.3b))
 ```
 
 While the impact of passive voice $\beta_{passive}$ is consistent with 0, the impact of the number of missing objects $\beta_{objects.missing}$ is strictly positive now. 
 This leads to the conclusion that missing objects are the key mediating factor for the number of missing associations in domain modeling when using passive voice.
 
-### Evidence e2.2c: Revisions 3
+## Evidence e2: Revision or Reanalysis
 
-What the follow-up study fails to consider is investigating, why $AIC(e_{2.2a}) \approx AIC(e_{2.2b})$ despite the more rigorous assumptions.
-Investigating the $R^2$ values of $e_{2.2b}$ provides some insight.
+Finally, the conflated evidence $e_2$ presented in the follow-up study can be considered both 
 
-```{r evidence-e2.2b-r2}
-performance::r2(e2.2b)
+1. a revision of $e_{2.1}$ as it switches out $h_1$ for $h_2$ but maintains $m_2$, and
+2. a reanalysis of $e_{2.2b}$ as it switches out $m_1.1$ for $m_2$ but maintains $h_2$.
+
+Again, the hypothesis $h_2$ can be reformulated in a more Bayesian way by making explicit that the reponse variable follows a Binomial distribution.
+
+```{r hypothesis-h2-bayesian}
+h2.b <- (associations.missing | trials(associations.expected) ~ 
+           passive + actors.missing + objects.missing +
+           ExpREAca + ExpREInd + (1|RID) + (1|PID))
 ```
 
-While the marginal $R^2$ value of $e_{2.2b}$ remains low, the conditional $R^2$ value is significantly higher.
+The following code produces a Bayesian model.
+Additional steps like prior and posterior predictive checks, model summary, marginal and conditional plots, and others have been omitted here, but can be found in the replication package of the follow-up study.
+
+```{r evidence-e2, message=FALSE, warning=FALSE}
+e2.priors <- c(prior(normal(-1, 1), class = Intercept),
+            prior(normal(0, 1), class = b),
+            prior(weibull(2, 1), class = sd, coef = Intercept, group = RID),
+            prior(weibull(2, 1), class = sd, coef = Intercept, group = PID),
+            prior(exponential(1), class = sd))
+
+e2 <-
+  brm(data = d1, family = binomial, h2.b, prior = e2.priors,
+    iter = 4000, warmup = 1000, chains = 4, cores = 4,
+    seed = 4,
+    file = "fits/e2"
+  )
+```
+
+### Diagnostics
+
+Considering $e_2$ as a revision of $e_{2.1}$, the new piece of evidence aims for higher internal validity.
+
+```{r evidence-e2-revision}
+# obtain the parameters from the posterior predictions
+params.m1 <- mcmc_intervals_data(e1.2)
+params.m2 <- mcmc_intervals_data(e2)
+
+# add the "model" variable to each row in the parameter list
+params.m1$model <- "e1.2"
+params.m2$model <- "e2"
+
+# combine the parameter estimates and filter for those that are relevant
+cmb <- rbind(params.m1, params.m2) %>%
+	filter(parameter %in% c("b_passiveTRUE", "b_actors.missing", "b_objects.missing"))
+
+# define a position nudge such that the visualizations of the models do not overlap
+pos <- position_nudge(y = ifelse(cmb$model == "e1.2", -0.1, 0.1))
+
+# plot two overlapping line ranges and the mean value estimate
+ggplot(data = cmb, mapping = aes(x=m, y=parameter, color=model)) +
+  geom_linerange(aes(xmin = l, xmax = h), position = pos, size = 2) +
+  geom_linerange(aes(xmin = ll, xmax = hh), position = pos) +
+  geom_point(position = pos, color="black") + 
+  geom_vline(xintercept = 0, linetype="dashed") +
+  scale_y_discrete(limits=rev)
+```
+
+Clearly, the inclusion of `actors.missing` and `objects.missing` impacts the estimated strength of $\beta_{passive}$, i.e., those factors are not conditionally independent.
+Evidence $e_2$ is, hence, more internally valid than $e_{2.1}$.
+
+Considering $e_2$ as a reanalysis of $e_{2.2b}$, the new piece of evidence aims for a higher conclusion validity.
+For this comparison, we again resort to existing literature.
+
+### Conclusion
+
+Finally, we can evaluate the conclusion of the final piece of evidence presented in the follow-up study.
+
+```{r e2-conclusion}
+evaluate.model(e2)
+```
+
+Evidence $e_2$ is a lot more cautious than $e_1$ in suggesting that the use of passive voice has an impact on the number of missing associations from a domain model.
+
+## Follow-up Evidence
+
+The omitted steps made clear that hypothesis $h_2$ might have not been the most internally valid.
+The following pieces of evidence were neither presented directly nor conflated with $e_1$ or $e_2$.
+Instead, they present alternative paths of evidence evolution that researchers could have taken if they had not omitted the vital steps between the two original pieces of evidence.
+
+### Evidence e1.3c: Revisions 3
+
+What the follow-up study fails to consider is investigating, why $AIC(e_{1.3a}) \approx AIC(e_{1.3b})$ despite the more rigorous assumptions.
+Investigating the $R^2$ values of $e_{1.3b}$ provides some insight.
+
+```{r evidence-e1.3b-r2}
+performance::r2(e1.3b)
+```
+
+While the marginal $R^2$ value of $e_{1.3b}$ remains low, the conditional $R^2$ value is significantly higher.
 This indicates that the random effects in $h_2$ explain alot more of the variance in $d_1$ than the fixed effects.
 Since AIC penalizes large models, it is likely that $h_2$ overfit on the data.
 
@@ -415,132 +503,54 @@ h2c.dag.gg
 
 This DAG produce the following statistical model.
 
-```{r evidence-e2.2c-e2.2d}
+```{r evidence-e1.3c}
 h2c <- associations.missing ~ passive + actors.missing + objects.missing + (1|PID) + (1|RID)
-e2.2c <- lmer(formula = h2c, data = d1)
+e1.3c <- lmer(formula = h2c, data = d1)
 ```
 
 #### Diagnostics
 
-The AIC value of $e_{2.2c}$ is significantly lower than that of $e_{2.2b} (251.2111).
+The AIC value of $e_{1.3c}$ is significantly lower than that of $e_{1.3b}$ (251.2111).
 
-```{r evidence-e2.2c-e2.2d-aic}
-AIC(e2.2c)
+```{r evidence-e1.3c-aic}
+AIC(e1.3c)
 ```
 
-Consequently, $h_{2d}$ has the greatest external validity and should have been used for further analyses.
+Consequently, $h_{2c}$ has the greatest external validity and should have been used for further analyses.
 
 #### Conclusion
 
-The conclusion offered by evidence $e_{2.2c}$ looks as follows.
+The conclusion offered by evidence $e_{1.3c}$ looks as follows.
 
-```{r evidence-e2.2c-conclusion}
-summary(e2.2c)
+```{r evidence-e1.3c-conclusion}
+summary(e1.3c)
 ```
 
-```{r evidence-e2-2c-passive}
-confint(e2.2c, parm="passiveTRUE", level=0.95)
+```{r evidence-e1.3c-passive}
+confint(e1.3c, parm="passiveTRUE", level=0.95)
 ```
 
-$e_{2.2c}$ considers the impact of passive voice to be significant again.
-Additionally, $e_{2.2c}$ shows a significant mediation via the factor `objects.missing`.
+$e_{1.3c}$ considers the impact of passive voice to be significant again.
+Additionally, $e_{1.3c}$ shows a significant mediation via the factor `objects.missing`.
 
-### Evidence e2: Revision or Reanalysis
+### Evidence e1.4: Reanalysis
 
-Finally, the conflated evidence $e_2$ presented in the follow-up study can be considered both 
-
-1. a revision of $e_{2.1}$ as it switches out $h_1$ for $h_2$ but maintains $m_2$, and
-2. a reanalysis of $e_{2.2b}$ as it switches out $m_1.1$ for $m_2$ but maintains $h_2$.
-
-Again, the hypothesis $h_2$ can be reformulated in a more Bayesian way by making explicit that the reponse variable follows a Binomial distribution.
-
-```{r hypothesis-h2-bayesian}
-h2.b <- (associations.missing | trials(associations.expected) ~ 
-           passive + actors.missing + objects.missing +
-           ExpREAca + ExpREInd + (1|RID) + (1|PID))
-```
-
-The following code produces a Bayesian model.
-Additional steps like prior and posterior predictive checks, model summary, marginal and conditional plots, and others have been omitted here, but can be found in the replication package of the follow-up study.
-
-```{r evidence-e2, message=FALSE, warning=FALSE}
-e2.priors <- c(prior(normal(-1, 1), class = Intercept),
-            prior(normal(0, 1), class = b),
-            prior(weibull(2, 1), class = sd, coef = Intercept, group = RID),
-            prior(weibull(2, 1), class = sd, coef = Intercept, group = PID),
-            prior(exponential(1), class = sd))
-
-e2 <-
-  brm(data = d1, family = binomial, h2.b, prior = e2.priors,
-    iter = 4000, warmup = 1000, chains = 4, cores = 4,
-    seed = 4,
-    file = "fits/e2"
-  )
-```
-
-#### Diagnostics
-
-Considering $e_2$ as a revision of $e_{2.1}$, the new piece of evidence aims for higher internal validity.
-
-```{r evidence-e2-revision}
-# obtain the parameters from the posterior predictions
-params.m1 <- mcmc_intervals_data(e2.1)
-params.m2 <- mcmc_intervals_data(e2)
-
-# add the "model" variable to each row in the parameter list
-params.m1$model <- "e2.1"
-params.m2$model <- "e2"
-
-# combine the parameter estimates and filter for those that are relevant
-cmb <- rbind(params.m1, params.m2) %>%
-	filter(parameter %in% c("b_passiveTRUE", "b_actors.missing", "b_objects.missing"))
-
-# define a position nudge such that the visualizations of the models do not overlap
-pos <- position_nudge(y = ifelse(cmb$model == "e2.1", -0.1, 0.1))
-
-# plot two overlapping line ranges and the mean value estimate
-ggplot(data = cmb, mapping = aes(x=m, y=parameter, color=model)) +
-  geom_linerange(aes(xmin = l, xmax = h), position = pos, size = 2) +
-  geom_linerange(aes(xmin = ll, xmax = hh), position = pos) +
-  geom_point(position = pos, color="black") + 
-  geom_vline(xintercept = 0, linetype="dashed") +
-  scale_y_discrete(limits=rev)
-```
-
-Clearly, the inclusion of `actors.missing` and `objects.missing` impacts the estimated strength of $\beta_{passive}$, i.e., those factors are not conditionally independent.
-Evidence $e_2$ is, hence, more internally valid than $e_{2.1}$.
-
-Considering $e_2$ as a reanalysis of $e_{2.2b}$, the new piece of evidence aims for a higher conclusion validity.
-For this comparison, we again resort to existing literature.
-
-#### Conclusion
-
-Finally, we can evaluate the conclusion of the final piece of evidence presented in the follow-up study.
-
-```{r e2-conclusion}
-evaluate.model(e2)
-```
-
-Evidence $e_2$ is a lot more cautious than $e_1$ in suggesting that the use of passive voice has an impact on the number of missing associations from a domain model.
-
-### Evidence e2.3: Reanalysis
-
-According to the revisions $e_{2.2a}$, $e_{2.2b}$, $e_{2.2c}$, and $e_{2.2d}$, the most valid hypothesis would have been $h_{2d}$, not $h_2$ that was involved in producing $e_2$.
+According to the revisions $e_{1.3a}$, $e_{1.3b}$, and $e_{1.3c}$, the most valid hypothesis would have been $h_{2c}$, not $h_2$ that was involved in producing $e_2$.
 
 #### Method m2: Bayesian data analysis
 
-```{r hypothesis-h2d-bayesian}
-h2d.b <- (associations.missing | trials(associations.expected) ~ 
+```{r hypothesis-h2c-bayesian}
+h2c.b <- (associations.missing | trials(associations.expected) ~ 
            passive + actors.missing + objects.missing +
            (1|RID) + (1|PID))
 ```
 
-```{r evidence-e2.3, message=FALSE, warning=FALSE}
-e2.3 <-
-  brm(data = d1, family = binomial, h2d.b, prior = e2.priors,
+```{r evidence-e1.4, message=FALSE, warning=FALSE}
+e1.4 <-
+  brm(data = d1, family = binomial, h2c.b, prior = e2.priors,
     iter = 4000, warmup = 1000, chains = 4, cores = 4,
     seed = 4,
-    file = "fits/e2.3"
+    file = "fits/e1.4"
   )
 ```
 
@@ -550,29 +560,29 @@ This piece of evidence $e_{2.3}$ is a reanalysis of $e_{2.2d}$.
 The reanalysis is based on the same argument (Bayesian methods vs. frequentist methods) as before.
 It can, however, also be considered as a revision of $e_2$, as it retains the data $d_1$ and the method $m_2$ while only substituting $h_2$ for $h_{2d}$.
 
-It has already been proven that $h_{2d}$ is more externally valid than $h_2$.
+It has already been proven that $h_{2c}$ is more externally valid than $h_2$.
 However, we can compare the two Bayesian models using the leave-one-out comparison.
 
-```{r evidence-e2.3-loo}
+```{r evidence-e1.4-loo}
 e2 <- add_criterion(e2, "loo")
-e2.3 <- add_criterion(e2.3, "loo")
-loo_compare(e2, e2.3)
+e1.4 <- add_criterion(e1.4, "loo")
+loo_compare(e2, e1.4)
 ```
 
-Again, $e_{2.3}$ shows the better out-of-sample predictive power, confirming that $h_{2d}$ should have been used over $h_2$.
+Again, $e_{1.4}$ shows the better out-of-sample predictive power, confirming that $h_{2c}$ should have been used over $h_2$.
 
 #### Conclusion
 
 Finally we can inspect the conclusion of $e_{2.3}$.
 
-```{r evidence-e2.3-comaprison}
+```{r evidence-e1.4-comaprison}
 # obtain the parameters from the posterior predictions
 params.m1 <- mcmc_intervals_data(e2)
-params.m2 <- mcmc_intervals_data(e2.3)
+params.m2 <- mcmc_intervals_data(e1.4)
 
 # add the "model" variable to each row in the parameter list
 params.m1$model <- "e2"
-params.m2$model <- "e2.3"
+params.m2$model <- "e1.4"
 
 # combine the parameter estimates and filter for those that are relevant
 cmb <- rbind(params.m1, params.m2) %>%
@@ -590,10 +600,10 @@ ggplot(data = cmb, mapping = aes(x=m, y=parameter, color=model)) +
   scale_y_discrete(limits=rev)
 ```
 
-Evidence $e_{2.3}$ is still consistent with 0 but only by a slight margin.
+Evidence $e_{1.4}$ is still consistent with 0 but only by a slight margin.
 
-```{r evidence-e2.3-conclusion}
-evaluate.model(e2.3)
+```{r evidence-e1.4-conclusion}
+evaluate.model(e1.4)
 ```
 
 The model evaluation suggests that there is 38% chance of passive voice causing more missing associations, 14% chance of less, and 47% chance of equal amount of missing associations.
