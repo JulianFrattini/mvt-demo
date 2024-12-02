@@ -37,14 +37,16 @@ We plan to expand this in the future.
 
 ## System Requirements and Setup
 
-In order to fully utilize this replication package, ensure that you have [R](https://ftp.acc.umu.se/mirror/CRAN/) (version > 4.0) and [RStudio](https://posit.co/download/rstudio-desktop/#download) installed on your machine. 
+To view and edit the `graphml` files, install a graph editing tool like [yEd](https://www.yworks.com/products/yed) from yWorks.
+
+To execute the code provided for each study, ensure that you have [R](https://ftp.acc.umu.se/mirror/CRAN/) (version > 4.0) and [RStudio](https://posit.co/download/rstudio-desktop/#download) installed on your machine. 
 Then, execute the following steps to setup and integrate `stan`:
 
 1. Install the `rstan` toolchain by following the instructions for [Windows](https://github.com/stan-dev/rstan/wiki/Configuring-C---Toolchain-for-Windows#r40), [Mac OS](https://github.com/stan-dev/rstan/wiki/Configuring-C---Toolchain-for-Mac), or [Linux](https://github.com/stan-dev/rstan/wiki/Configuring-C-Toolchain-for-Linux) respectively.
 2. Restart RStudio and follow the instructions starting with the [Installation of RStan](https://github.com/stan-dev/rstan/wiki/RStan-Getting-Started#installation-of-rstan)
 3. Install the latest version of `stan` by running the following commands
 ```R
-    install.package("devtools")
+    install.packages("devtools")
     devtools::install_github("stan-dev/cmdstanr")
     cmdstanr::install_cmdstan()
 ```
@@ -53,6 +55,12 @@ Then, execute the following steps to setup and integrate `stan`:
 6. Open the `mvt-demo.Rproj` file with RStudio, which will setup the environment correctly.
 
 ## Usage
+
+This repository is intended to demonstrate the use of the evidence evolution framework that helps managing variance theories.
+Once you are familiar with the fundamentals of this framework, browse the case studies provided in the *studies* directory.
+Each of them contains a detailed application of the framework. 
+
+Run the `Rmd` notebooks to interact with the data and analyses yourself, or view the `html` files (generated from the notebooks via `knitr`) for a pre-compiled version.
 
 ## License
 
