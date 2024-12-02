@@ -23,11 +23,15 @@ The full definition of empirical, quantitative evidence as well as the framework
 The repository contains the following directories and files:
 
 ```
+├── material : directory of additional material
+│   ├── dags : directory of basic directed, acyclic graphs (DAGs)
+│   └── graphs : directory of custom graphs
+│       └── mvt-framework.graphml : visualization of the evidence evolution framework (also available in pdf and png format)
 └── studies : collection of research agendas
     └── requirements-quality : studies on the impact of passive voice on domain modeling
 ```
 
-Each case study contains a separate `README.md` file that explains the context and involved studies better.
+Each case study in the *studies* directory contains a separate `README.md` file that explains the context and involved studies better.
 For now, the repository contains only one case study.
 We plan to expand this in the future.
 
