@@ -1,5 +1,7 @@
 # Managing Variance Theories: Application of the Evidence Evolution Framework
 
+[![GitHub](https://img.shields.io/github/license/JulianFrattini/mvt-demo)](./LICENSE)
+
 This repository demonstrates managing variance theories in software engineering.
 It applies the evidence evolution framework to several cases of software engineering research agendas consisting of multiple pieces of evidence.
 
@@ -64,5 +66,5 @@ Run the `Rmd` notebooks to interact with the data and analyses yourself, or view
 
 ## License
 
-Copyright © 2024 anonymous.
+Copyright © 2024 Julian Frattini.
 This work (source code) is licensed under the [MIT License](./LICENSE).
