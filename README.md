@@ -50,7 +50,7 @@ Then, execute the following steps to setup and integrate `stan`:
     devtools::install_github("stan-dev/cmdstanr")
     cmdstanr::install_cmdstan()
 ```
-4. Install all missing packages via `install.packages(c("tidyverse", "patchwork", "ggdag", "ggstats", "lme4", "brms", "marginaleffects", "bayesplot", "effsize", "rcompanion"))`.
+4. Install all missing packages via `install.packages(c("tidyverse", "patchwork", "ggdag", "ggstats", "lme4", "brms", "marginaleffects", "bayesplot", "effsize", "rcompanion", "lmtest"))`.
 5. Create a folder called *fits* within each *src/* directory such that `brms` has a location to place all Bayesian models.
 6. Open the `mvt-demo.Rproj` file with RStudio, which will setup the environment correctly.
 

@@ -1,6 +1,6 @@
 ---
 title: "Requirements Quality Evidence Synthesis"
-author: "Anonymous"
+author: "Julian Frattini"
 date: '2024-11-07'
 output: html_document
 ---

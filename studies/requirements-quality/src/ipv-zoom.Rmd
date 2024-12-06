@@ -1,6 +1,6 @@
 ---
 title: 'Requirements Quality Evidence Synthesis: Detailed Review'
-author: "Anonymous"
+author: "Julian Frattini"
 date: '2024-11-11'
 output: html_document
 ---
@@ -19,6 +19,7 @@ library(brms)
 library(marginaleffects)
 library(bayesplot)
 source("util/model-eval.R")
+library(lmtest)
 ```
 
 This notebook investigates the relationship between the original study on the impact of passive voice on domain modeling[^1] and its follow-up study[^2] in more detail.
@@ -343,6 +344,29 @@ h2 <- associations.missing ~ passive +
 
 e1.3b <- lmer(formula = h2, data = d1)
 ```
+
+Using a linear mixed model ($m_{1.2}$) instead of a linear model ($m_{1.1}$) technically constitutes a reanalysis.
+However, we can consider $e_{1.1}$ produced by a linear mixed model without a random effect as long as its residuals are independent and identically distributed.
+This property can be determine graphically by inspecting a histogram of the residuals, a QQ-plot, or by running tests like the Durbin-Watson test.
+
+```{r diagnostics-m1.2-histogram}
+residuals_raw <- residuals(e1.1)
+
+hist(residuals_raw, main = "Histogram of Residuals", xlab = "Residuals")
+```
+
+```{r diagnostics-m1.2-qqplot}
+qqnorm(residuals_raw)
+qqline(residuals_raw, col = "red")
+```
+
+```{r diagnostics-m1.2-dwtest}
+dwtest(e1.1)
+```
+
+The diagnostics show that the residuals of the linear model $e_{1.1}$ are not independent and identically distributed by a small margin.
+Technically, this impedes the comparability of $m_{1.1}$ and $m_{1.2}$.
+However, we assume that we can compare the linear model $e_{1.1}$ with the linear mixed model $e_{1.3b}$ as a version without any random effect.
 
 #### Diagnostics
 
