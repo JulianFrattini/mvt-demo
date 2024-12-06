@@ -18,6 +18,8 @@ library(lme4) # fitting linear mixed models
 library(brms) # fitting Bayesian hierarchical models
 library(marginaleffects) # visualizing marginal effects of Bayesian models
 source("util/model-eval.R") # deriving conclusions from Bayesian models
+library(effsize) # Cliff's delta effect size
+library(rcompanion) # matched-pairs biserial rank correlation coefficient
 ```
 
 This notebook demonstrates the application of the evidence evolution framework by applying it to existing evidence from the domain of requirements quality research.
@@ -128,16 +130,33 @@ e1 <- wilcox.test(
 )
 ```
 
+Additionally, the authors calculated the effect size via Cliffs's delta.
+
+```{r method-m1-effectsize}
+group1 <- d1 %>% filter(passive==FALSE) %>% select(associations.missing)
+group2 <- d1 %>% filter(passive==TRUE) %>% select(associations.missing)
+
+# Calculate Cliff's Delta
+e1.es <- cliff.delta(group1$associations.missing, group2$associations.missing)
+```
+
 ### Conclusion
 
 Evidence $e_1$ is produced via a null-hypothesis significance tests.
-Hence, the conclusion it offers comes in form of a p-value.
+Hence, the conclusion it offers comes in form of a p-value and a effect size.
 
 ```{r evidence-e1-conclusion}
 e1$p.value
 ```
 
 Evidence $e_1=E(h_1, d_1, m_1)$ concludes that passive voice has a statistically significant impact on the number of missing associations $Asc^-$ with a p-value of around 0.001.
+
+```{r evidence-e1-effectsize}
+e1.es
+```
+
+The effect is classified as medium.
+The negative value means that many values in group 2 are larger than in group 1, i.e., domain models produced from requirements specifications containing passive voice missed more associations in about 35% of all cases.
 
 ## Evidence e2: Revision and Reanalysis
 
@@ -302,7 +321,7 @@ d2.paired <- d2 %>%
 
 To produce evidence $e_7=E(h_1, d_2, m_1)$, we need to adapt $m_1$ for paired data (i.e., set `paired = TRUE`).
 
-```{r evidence-e3}
+```{r method-m1.1}
 e3 <- wilcox.test(
   x=d2.paired$baseline, 
   y=d2.paired$treatment,
@@ -318,8 +337,12 @@ Again, the conclusion offered by $e_3$ is a p-value.
 e3$p.value
 ```
 
-
 Evidence $e_3=E(h_1, d_2, m_1)$ agrees with $e_1$ and also concludes that passive voice has a statistically significant impact on the number of missing associations $Asc^-$.
+The effect size needs to be calculated via the matched-pairs rank biserial correlation coefficient
+
+```{r method-m1.1-effectsize}
+wilcoxonPairedRC(x=d2$associations.missing, g=d2$RQ, ci=TRUE)
+```
 
 ## Evidence e4: Revision and Reanalysis
 
