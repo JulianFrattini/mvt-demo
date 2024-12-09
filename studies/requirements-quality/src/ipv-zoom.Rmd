@@ -379,7 +379,7 @@ AIC(e1.3b)
 ```
 
 The AIC values of the two evidences is within a 2 point range, which is usually considered negligible.
-There is no strong evidence that $h_2$ is more externally valid than $h_2a$.
+There is no strong evidence that $h_2$ is more internally valid than $h_2a$.
 
 #### Conclusion
 
