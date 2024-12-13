@@ -73,7 +73,7 @@
       <data key="d6">
         <y:ShapeNode>
           <y:Geometry height="30.0" width="75.0" x="268.5948799999999" y="404.3792000000001"/>
-          <y:Fill color="#5A85AC" transparent="false"/>
+          <y:Fill color="#5A85AC" color2="#A02E00" transparent="false"/>
           <y:BorderStyle color="#000000" raised="false" type="line" width="1.0"/>
           <y:NodeLabel alignment="center" autoSizePolicy="content" fontFamily="Dialog" fontSize="26" fontStyle="plain" hasBackgroundColor="false" hasLineColor="false" height="35.8525390625" horizontalTextPosition="center" iconTextGap="4" modelName="custom" textColor="#FFFFFF" verticalTextPosition="bottom" visible="true" width="69.0634765625" x="2.96826171875" xml:space="preserve" y="-2.92626953125">e1.3b<y:LabelModel><y:SmartNodeLabelModel distance="4.0"/></y:LabelModel><y:ModelParameter><y:SmartNodeLabelModelParameter labelRatioX="0.0" labelRatioY="0.0" nodeRatioX="0.0" nodeRatioY="0.0" offsetX="0.0" offsetY="0.0" upX="0.0" upY="-1.0"/></y:ModelParameter></y:NodeLabel>
           <y:Shape type="roundrectangle"/>

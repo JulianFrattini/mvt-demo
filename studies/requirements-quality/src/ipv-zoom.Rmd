@@ -26,7 +26,7 @@ This notebook investigates the relationship between the original study on the im
 As such, it goes in-depth into the transition from $e_1$ to $e_2$ as presented in `requirements-quality-synthesis.Rmd`.
 The steps between $e_1$ and $e_2$ as well as their relationship inbetween are visualized in the following figure.
 
-![Version control view on the evidence evolution](./figs/ipv-vcg-zoom.png)
+![Version control view on the evidence evolution](./figs/ipv-vcg-zoom2.png)
 
 The colors of the pieces of evidence in the version control graph correspond to the colors of the three types of evidence evolution as seen in the framework figure (to be found in the base README file).
 
@@ -295,7 +295,7 @@ confint(e1.3a, parm="passiveTRUE", level=0.95)
 
 Evidence $e_{1.3a}$ is a bit more cautious about the impact of passive voice on the number of missing associations from a domain model, but remains positive and, hence, agrees with $e_{1.1}$.
 
-### Evidence e1.3b: Revision 2
+### Evidence e1.3b: Revision 2 and Reanalysis
 
 The second part of the revision contributed in the follow-up study aimed purely at improving the precision of the evidence.
 
@@ -345,8 +345,11 @@ h2 <- associations.missing ~ passive +
 e1.3b <- lmer(formula = h2, data = d1)
 ```
 
-Using a linear mixed model ($m_{1.2}$) instead of a linear model ($m_{1.1}$) technically constitutes a reanalysis.
-However, we can consider $e_{1.1}$ produced by a linear mixed model without a random effect as long as its residuals are independent and identically distributed.
+#### Diagnostics of the Reanalysis
+
+Using a linear mixed model ($m_{1.2}$) instead of a linear model ($m_{1.1}$) constitutes a reanalysis.
+To assess which of the two analysis methods has the greater conclusion validity on their respective pieces of evidence, we can evaluate certain properties of the models.
+For example, the residuals of the linear model $e_{1.1}$ should be independent and identically distributed.
 This property can be determine graphically by inspecting a histogram of the residuals, a QQ-plot, or by running tests like the Durbin-Watson test.
 
 ```{r diagnostics-m1.2-histogram}
@@ -360,15 +363,19 @@ qqnorm(residuals_raw)
 qqline(residuals_raw, col = "red")
 ```
 
-```{r diagnostics-m1.2-dwtest}
+```{r diagnostics-m1.2-test}
+# Durbin-Watson test for autocorrelation
 dwtest(e1.1)
+# Breusch-Pagan test for heteroscedasticity
+bptest(e1.1)
+# Shapiro-Wilk test for normality
+shapiro.test(residuals_raw)
 ```
 
 The diagnostics show that the residuals of the linear model $e_{1.1}$ are not independent and identically distributed by a small margin.
-Technically, this impedes the comparability of $m_{1.1}$ and $m_{1.2}$.
-However, we assume that we can compare the linear model $e_{1.1}$ with the linear mixed model $e_{1.3b}$ as a version without any random effect.
+The violation of the iid property gives the linear mixed model $m_{1.2}$ greater conclusion validity than the linear model $m_{1.1}$.
 
-#### Diagnostics
+#### Diagnostics of the Revision
 
 Since $e_{2.2a}$ and $e_{2.2b}$ were produced by two slightly different analysis methods (linear model $m_{1.1}$ and linear mixed model $m_{1.2}$), their $R^2$ metrics are not comparable. 
 However, both models can be compared using the Akaike-information-criterion (AIC).
